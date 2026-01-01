@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tertulia Librería – Inicio</title>
+
+<link rel="icon" href="https://Tertulia-libreria.github.io/catalogo/favicon.ico">
+
+<style>
+/* --- Reparación global de overflow y box sizing --- */
+* { box-sizing: border-box; }
+html, body {
+  margin: 0;
+  padding: 0;
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+  overflow-x: hidden; /* evita desbordes horizontales indeseados */
+}
+
+/* ===== CARRUSEL BANNER CATEGORÍAS ===== */
+.banner-carrusel {
+  display: flex;
+  overflow-x: auto;
+  gap: 20px;
+  padding: 10px 20px;
+  scroll-snap-type: x mandatory;
+}
+
+.banner-carrusel::-webkit-scrollbar {
+  display: none;
+}
+
+.banner-carrusel-item {
+  flex: 0 0 90%;
+  max-width: 90%;
+  scroll-snap-align: center;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.banner-carrusel-item img {
+  width: 100%;
+  height: 380x;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+@media(max-width:480px) {
+  .banner-carrusel-item {
+    flex: 0 0 92%;
+  }
+  .banner-carrusel-item img {
+    height: 160px;
+  }
+}
+
+
+/* Asegura que banners/hero no excedan ancho */
+.hero {
+  max-width: 100%;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* Contenedores generales: evitar que padding haga crecer el ancho */
+.arribos-grid, .categorias-grid, .carrusel, .beneficios-section, .testimonios {
+  width: 100%;
+  box-sizing: border-box;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+/* Ajustes móviles extra */
+@media (max-width: 480px) {
+  body { overflow-x: hidden; } /* doble seguridad en móviles */
+  .hero { height: 42vh; background-position: center top; }
+  .categorias-grid { padding-left: 12px; padding-right: 12px; gap: 10px; }
+  .arribos-grid { padding-left: 12px; padding-right: 12px; gap: 10px; }
+  .carrusel { padding-left: 12px; padding-right: 12px; }
+  /* Flotantes ya los dejaste más adentro; opcional: reducir tamaño */
+  .flotante-btn { width:46px; height:46px; font-size:18px; }
+}
+
+/* =========================
+   ESTILOS GENERALES
+========================= */
+body {
+  margin: 0;
+  font-family: "Segoe UI", Arial, sans-serif;
+  background: #f4f7ff;
+  color: #222;
+}
+
+h1, h2, h3 {
+  font-family: "Georgia", serif;
+}
+
+.section-title {
+  text-align: center;
+  margin: 40px 0 10px;
+  font-size: 28px;
+  color: #0d47a1;
+  font-weight: bold;
+  display: block;
+}
+
+/* =========================
+   HERO
+========================= */
+.hero {
+  position: relative;
+  width: 100%;
+  height: 45vh;
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+}
+
+.hero-content {
+  position: relative;
+  text-align: center;
+  color: white;
+}
+
+.hero-logo {
+  width: 120px;
+  margin-bottom: 15px;
+}
+
+.hero-title {
+  font-size: 36px;
+  font-weight: 600;
+}
+
+.hero-btn {
+  display: inline-block;
+  margin-top: 18px;
+  padding: 12px 28px;
+  background: #0d47a1;
+  color: white;
+  border-radius: 25px;
+  text-decoration: none;
+  font-size: 18px;
+  transition: 0.3s ease;
+  border: 2px solid #d4af37;
+}
+
+/* =========================
+   NUEVOS ARRIBOS
+========================= */
+
+.arribos-item img {
+  width: 160px;
+  height: 220px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+/* =========================
+   CATEGORÍAS 2x2
+========================= */
+.categorias-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  padding: 20px;
+  max-width: 600px;
+  margin: auto;
+}
+
+.categoria-card {
+  background: #fff;
+  padding: 18px;
+  text-align: center;
+  border-radius: 12px;
+  border: 2px solid #0d47a1;
+  color: #0d47a1;
+  font-size: 17px;
+  font-weight: 600;
+}
+
+/* =========================
+   DESTACADOS
+========================= */
+.carrusel {
+  display: flex;
+  overflow-x: auto;
+  gap: 20px;
+  padding: 20px;
+}
+
+/* =========================
+   BENEFICIOS (AZUL)
+========================= */
+.beneficios-section {
+  background: #0d47a1;
+  padding: 40px 20px;
+  color: white;
+}
+
+.beneficios-grid {
+  max-width: 900px;
+  margin: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill,minmax(230px,1fr));
+  gap: 20px;
+}
+
+.benef-card {
+  background: #123d80;
+  padding: 20px;
+  border-radius: 12px;
+  text-align: center;
+  color: white;
+}
+
+.benef-card-icon {
+  font-size: 40px;
+  margin-bottom: 10px;
+}
+
+/* =========================
+   QUIÉNES SOMOS
+========================= */
+.acordeon {
+  max-width: 800px;
+  margin: 20px auto;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}
+
+.acordeon-titulo {
+  padding: 18px;
+  background: #0d47a1;
+  color: white;
+  cursor: pointer;
+}
+
+.acordeon-contenido {
+  padding: 20px;
+  display: none;
+}
+
+/* =========================
+   TESTIMONIOS
+========================= */
+.testimonios {
+  max-width: 900px;
+  margin: 20px auto;
+  padding: 20px;
+}
+
+.testimonios-grid {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+}
+
+/* ===== TESTIMONIOS (FORMATO VERTICAL) ===== */
+.testimonios-grid {
+  display: flex;
+  gap: 18px;
+  overflow-x: auto;
+  padding: 10px;
+}
+
+.testimonio-item {
+  flex: 0 0 auto;
+  width: 200px;
+  height: 300px;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.18);
+  transition: transform 0.3s ease;
+}
+
+.testimonio-item:hover {
+  transform: scale(1.03);
+}
+
+.testimonio-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* 🔑 respeta imagen alargada */
+  background: white;
+}
+
+
+/* =========================
+   MAPA
+========================= */
+.mapa {
+  width: 100%;
+  height: 320px;
+  border: none;
+  margin-top: 20px;
+}
+
+/* ===== FOOTER LIMPIO Y PROFESIONAL ===== */
+footer {
+  width: 100%;
+  background: #0d47a1;   /* azul original */
+  color: white;
+  padding: 18px 12px;    /* más delgado */
+  margin-top: 50px;
+  border-top: 3px solid #d4af37;  /* línea dorada fina */
+  text-align: center;
+  font-size: 14px;
+}
+
+/* =========================
+   BOTONES FLOTANTES
+========================= */
+.flotantes {
+  position: fixed;
+  bottom: 18px;
+  right: 10px;          /* antes 18px */
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 9999;        /* evita que interfieran con otros elementos */
+}
+
+@media(max-width:480px) {
+  .flotantes {
+    right: 6px;         /* aún más adentro en celulares */
+    bottom: 12px;
+    gap: 10px;
+  }
+}
+
+
+.flotante-btn {
+  width: 50px;
+  height: 50px;
+  background: #0d47a1;
+  color: white;
+  font-size: 22px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+@media(max-width:480px) {
+  .categorias-grid {
+    gap: 10px;       /* reduce separación */
+    padding: 10px;   /* reduce padding */
+  }
+  
+  .categoria-card {
+    font-size: 15px;   /* evita que el texto crezca de más */
+    padding: 14px;     /* más pequeño y estable */
+  }
+
+  .arribos-grid {
+    gap: 10px;
+    padding: 10px;
+  }
+}
+
+/* ===== NORMALIZAR TAMAÑO DE IMÁGENES ===== */
+
+
+
+.carrusel-item {
+  flex: 0 0 auto;
+  width: 180px;
+  height: 260px;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.carrusel-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ===== EFECTO ZOOM ===== */
+.arribos-item,
+.carrusel-item {
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+
+.item-activo {
+  transform: scale(1.12);
+  z-index: 2;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.35);
+}
+
+/* ===== MODAL TESTIMONIOS ===== */
+.modal-testimonio {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.8);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+}
+
+.modal-testimonio img {
+  max-width: 90%;
+  max-height: 90%;
+  background: white;
+  border-radius: 12px;
+}
+
+.modal-cerrar {
+  position: absolute;
+  top: 20px;
+  right: 25px;
+  font-size: 32px;
+  color: white;
+  cursor: pointer;
+}
+
+/* =========================
+   MODAL LIBRO (ARRIBOS)
+========================= */
+.modal-libro {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+}
+
+.modal-contenido {
+  width: 92%;
+  max-width: 420px;
+  border-radius: 14px;
+  overflow: hidden;
+  background: white;
+}
+
+/* HEADER BLANCO */
+.modal-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px;
+  background: white;
+}
+
+.modal-logo {
+  height: 32px;
+}
+
+.modal-header h3 {
+  flex: 1;
+  font-size: 17px;
+  margin: 0;
+  color: #0d47a1;
+}
+
+.modal-cerrar {
+  font-size: 22px;
+  cursor: pointer;
+}
+
+/* CUERPO AZUL CON SCROLL */
+.modal-body {
+  background: #0d47a1;
+  color: white;
+  padding: 18px;
+  max-height: 60vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-texto {
+  font-size: 15px;
+  line-height: 1.6;
+  overflow-y: auto;
+  margin-bottom: 18px;
+}
+
+/* BOTÓN WHATSAPP */
+.modal-btn {
+  background: #25D366;
+  color: white;
+  text-align: center;
+  padding: 14px;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+
+/* =========================
+   BANNER CATEGORÍAS
+========================= */
+.banner-categorias {
+  width: 100%;
+  margin: 25px 0 35px;
+}
+
+.banner-categorias img {
+  width: 100%;
+  height: 160px;              /* 🔑 tamaño fijo */
+  object-fit: cover;          /* 🔑 todas se ven iguales */
+  display: block;
+  border-radius: 0;           /* toca bordes en móvil */
+}
+
+/* Ajuste desktop */
+@media (min-width: 768px) {
+  .banner-categorias img {
+    height: 220px;
+    border-radius: 12px;      /* un poco más elegante en grande */
+  }
+}
+
+
+
+
+</style>
+
+</head>
+<body>
+
+<!-- ANUNCIO FLOTANTE -->
+<!-- ANUNCIO CELEBRACIÓN -->
+<script>
+// Revisar si ya se mostró antes
+if (localStorage.getItem("celebracionMostrada") === "1") {
+    const style = document.createElement("style");
+    style.innerHTML = `
+      #overlayCelebracion, #confetiCanvas {
+        display: none !important;
+      }
+    `;
+    document.head.appendChild(style);
+}
+</script>
+
+<style>
+@keyframes pulsoColor {
+  0% { background-position: 0% 50%; box-shadow: 0 0 20px #fff; }
+  50% { background-position: 100% 50%; box-shadow: 0 0 50px #ffd500; }
+  100% { background-position: 0% 50%; box-shadow: 0 0 20px #fff; }
+}
+
+@keyframes sacudir {
+  0% { transform: translate(0,0); }
+  20% { transform: translate(-2px,2px); }
+  40% { transform: translate(2px,-2px); }
+  60% { transform: translate(-2px,-2px); }
+  80% { transform: translate(2px,2px); }
+  100% { transform: translate(0,0); }
+}
+</style>
+
+<div id="overlayCelebracion" style="
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10002;
+">
+
+  <div id="botonCelebracion" onclick="explotarCelebracion()" style="
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    background: linear-gradient(45deg,#ff0080,#7928ca,#00c6ff,#ffd500);
+    background-size: 400% 400%;
+    animation: pulsoColor 3s infinite, sacudir 1.1s infinite;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: white;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    box-shadow: 0 0 40px rgba(255,255,255,0.6);
+    cursor: pointer;
+    padding: 20px;
+    position: relative;
+    overflow: visible;
+  ">
+    <div style="font-size: 20px; font-weight: bold;">
+      YA ESTAMOS<br>EN LÍNEA
+    </div>
+    <div style="font-size: 14px; margin-top: 8px; opacity:0.9;">
+      Toca aquí para celebrar 🎉
+    </div>
+  </div>
+
+</div>
+
+<canvas id="confetiCanvas" style="
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10001;
+"></canvas>
+
+<script>
+/* ===== CHISPITAS CONSTANTES ===== */
+let chispasActivas = true;
+function lanzarChispas() {
+  if (!chispasActivas) return;
+
+  const canvas = document.getElementById("confetiCanvas");
+  const ctx = canvas.getContext("2d");
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const boton = document.getElementById("botonCelebracion");
+  if (!boton) return;
+
+  const rect = boton.getBoundingClientRect();
+  const cx = rect.left + rect.width / 2;
+  const cy = rect.top + rect.height / 2;
+
+  const chispas = Array.from({ length: 25 }, () => ({
+    x: cx,
+    y: cy,
+    vx: (Math.random() - 0.5) * 6,
+    vy: (Math.random() - 0.5) * 6,
+    life: 30,
+    c: `hsl(${Math.random()*360},100%,70%)`
+  }));
+
+  function animar() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    chispas.forEach(p => {
+      ctx.fillStyle = p.c;
+      ctx.fillRect(p.x, p.y, 3, 3);
+      p.x += p.vx;
+      p.y += p.vy;
+      p.life--;
+    });
+
+    if (chispas.some(p => p.life > 0) && chispasActivas) {
+      requestAnimationFrame(animar);
+    }
+  }
+  animar();
+}
+
+setInterval(lanzarChispas, 450);
+
+/* ===== CLICK ===== */
+function explotarCelebracion() {
+
+  // 🔥 Guardar que ya se mostró
+  localStorage.setItem("celebracionMostrada", "1");
+
+  sonidoCelebracion.currentTime = 0;
+  sonidoCelebracion.play();
+
+  chispasActivas = false;
+
+  const boton = document.getElementById("botonCelebracion");
+  const overlay = document.getElementById("overlayCelebracion");
+
+  if (overlay) overlay.remove();
+  if (boton) boton.remove();
+
+  lanzarConfeti();
+}
+
+/* ===== CONFETI FINAL ===== */
+function lanzarConfeti() {
+  const canvas = document.getElementById("confetiCanvas");
+  const ctx = canvas.getContext("2d");
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const piezas = Array.from({length: 260}, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * -canvas.height,
+    r: Math.random() * 6 + 4,
+    c: `hsl(${Math.random()*360},100%,60%)`,
+    v: Math.random() * 4 + 2
+  }));
+
+  let frames = 0;
+  function animar() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    piezas.forEach(p => {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+      ctx.fillStyle = p.c;
+      ctx.fill();
+      p.y += p.v;
+    });
+
+    frames++;
+    if (frames < 200) {
+      requestAnimationFrame(animar);
+    } else {
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+    }
+  }
+  animar();
+}
+
+const sonidoCelebracion = new Audio(
+  "https://hermessemreh82-maker.github.io/tertulia/celebracion.mp3"
+);
+sonidoCelebracion.volume = 0.5;
+
+</script>
+
+<!-- AVISO COMERCIAL DESTELLANTE -->
+<style>
+@keyframes destelloAmarillo {
+  0%   { box-shadow: 0 0 0 rgba(255,215,0,0); }
+  50%  { box-shadow: 0 0 18px rgba(255,215,0,0.8); }
+  100% { box-shadow: 0 0 0 rgba(255,215,0,0); }
+}
+
+#avisoComercial {
+  position: fixed;
+  bottom: 220px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 32px);
+  max-width: 920px;
+  background: #1f1f1f;
+  color: #f2f2f2;
+  padding: 12px 16px;
+  border-radius: 14px;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.4;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  z-index: 8000;
+  animation: destelloAmarillo 3.5s infinite;
+  box-sizing: border-box;
+}
+#avisoOpciones {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+}
+#avisoOpciones span {
+  cursor: pointer;
+  color: #ffd500;
+  text-decoration: underline;
+}
+</style>
+
+<div id="avisoComercial">
+  <div>
+    ⚠️ <strong>Atención:</strong>
+    precios y existencias sujetos a cambio sin previo aviso.
+    Consulta disponibilidad y precio final vía
+    <strong>WhatsApp 💬</strong>
+  </div>
+
+  <!-- OPCIONES -->
+  <div id="avisoOpciones">
+    <span onclick="cerrarAviso()">✕ Cerrar</span>
+    <span onclick="noVolverVer()">🚫 No volver a ver este mensaje</span>
+  </div>
+</div>
+
+<script>
+  // Al cargar la página, revisar si el usuario ya desactivó el aviso
+  document.addEventListener("DOMContentLoaded", function () {
+    if (localStorage.getItem("avisoComercialOculto") === "true") {
+      document.getElementById("avisoComercial").style.display = "none";
+    }
+  });
+
+  // Cierra la ventana SOLO por esta sesión
+  function cerrarAviso() {
+    document.getElementById("avisoComercial").style.display = "none";
+  }
+
+  // No volver a mostrar nunca más
+  function noVolverVer() {
+    localStorage.setItem("avisoComercialOculto", "true");
+    document.getElementById("avisoComercial").style.display = "none";
+  }
+</script>
+
+
+
+<div class="modal-testimonio" id="modalTestimonio">
+  <div class="modal-cerrar" onclick="cerrarTestimonio()">✕</div>
+  <img id="modalTestimonioImg">
+</div>
+
+<!-- HERO -->
+<div class="hero" style="background-image:url('https://i.ibb.co/23BgBh19/IMG-20251128-171145175-MFNR.jpg')">
+  <div class="hero-content">
+    <img src="https://i.ibb.co/gMkLKyBQ/logo-gof.gif" class="hero-logo">
+    <div class="hero-title">Tertulia Librería</div>
+    <a href="libros.html" class="hero-btn">Ir al catálogo</a>
+  </div>
+</div>
+
+<!-- NUEVOS ARRIBOS -->
+<h2 class="section-title">Nuevos arribos</h2>
+<div class="carrusel">
+  
+      <div class="carrusel-item"
+           onclick="abrirLibro(
+             'https://i.ibb.co/j95RVQFW/keep.jpg',
+             'Keeping 13',
+             'continúa la historia de Johnny y Shannon, profundizando en el amor, el trauma y la sanación. Mientras enfrentan heridas del pasado y nuevos desafíos, ambos deberán aprender a confiar, protegerse y luchar por un futuro juntos. Una novela intensa sobre resiliencia, apoyo y segundas oportunidades. ❤️‍🩹📖'
+           )">
+        <img src="https://i.ibb.co/j95RVQFW/keep.jpg">
+      </div>
+    
+      <div class="carrusel-item"
+           onclick="abrirLibro(
+             'https://i.ibb.co/zq00C7V/color-rojo.jpg',
+             'El color rojo',
+             'es una historia intensa donde las emociones, la memoria y las decisiones difíciles se entrelazan. A través de sus personajes, el libro explora cómo el pasado deja marcas profundas y cómo el dolor, la pasión y la culpa pueden transformar una vida. Un relato cargado de simbolismo y fuerza emocional. 🔴📖'
+           )">
+        <img src="https://i.ibb.co/zq00C7V/color-rojo.jpg">
+      </div>
+    
+      <div class="carrusel-item"
+           onclick="abrirLibro(
+             'https://i.ibb.co/ks1TwScZ/chimised.jpg',
+             'Alchemised',
+             'Narra la vida de una joven atrapada en un sistema donde la alquimia es poder y condena al mismo tiempo. Obligada a usar habilidades que no controla del todo, se ve envuelta en intrigas, decisiones imposibles y secretos que podrían cambiar su destino. Una historia de magia, control y lucha por la libertad. ⚗️📖'
+           )">
+        <img src="https://i.ibb.co/ks1TwScZ/chimised.jpg">
+      </div>
+    
+      <div class="carrusel-item"
+           onclick="abrirLibro(
+             'https://i.ibb.co/RpTXZ40X/column.jpg',
+             'La columna de hierro',
+             'Es una novela histórica centrada en la vida de Cicerón, donde el poder, la ambición y la corrupción de la antigua Roma se enfrentan a la palabra y la razón. A través de conspiraciones políticas y conflictos morales, la historia muestra cómo la integridad puede ser una fortaleza… y también una condena. 🏛️📖'
+           )">
+        <img src="https://i.ibb.co/RpTXZ40X/column.jpg">
+      </div>
+    
+      <div class="carrusel-item"
+           onclick="abrirLibro(
+             'https://i.ibb.co/wZ40xFNq/no-dejes-entrar-al-bosque.jpg',
+             'No dejes entrar al bosque',
+             'Es un thriller oscuro donde el miedo crece con cada paso. Un bosque aparentemente común esconde secretos inquietantes, y cuando alguien cruza sus límites, el peligro deja de ser una advertencia para convertirse en realidad. Una historia de tensión, misterio y terror psicológico que no te suelta. 🌲🖤📖'
+           )">
+        <img src="https://i.ibb.co/wZ40xFNq/no-dejes-entrar-al-bosque.jpg">
+      </div>
+    
+      <div class="carrusel-item"
+           onclick="abrirLibro(
+             'https://i.ibb.co/pjfS9bbH/grandeza.jpg',
+             'Grandeza',
+             'Pretendo reivindicar con este libro la vigencia del México profundo y sus civilizaciones originales, sometidas y negadas , pues considero una ingratitud no reconocer que, debido a esas raíces y enseñanzas, los mexicanos de hoy somos libres, fraternos, trabajadores, honestos y felices. Por esas benditas culturas nuestro país ha resistido todo tipo de calamidades y su pueblo, aunque eventualmente desfallece, siempre se levanta y vuelve a ponerse de pie para seguir caminando hacia el porvenir.'
+           )">
+        <img src="https://i.ibb.co/pjfS9bbH/grandeza.jpg">
+      </div>
+    
+</div>
+
+
+
+<!-- CATEGORÍAS -->
+<h2 class="section-title">Categorías populares</h2>
+<div class="categorias-grid">
+  <div class="categoria-card">Romance</div>
+  <div class="categoria-card">Juvenil</div>
+  <div class="categoria-card">Fantasía</div>
+  <div class="categoria-card">Misterio</div>
+</div>
+
+<!-- BANNER CATEGORÍAS -->
+<h2 class="section-title">Explora más</h2>
+<div class="banner-carrusel">
+  
+      <div class="banner-carrusel-item"
+      onclick="abrirTestimonio('https://i.ibb.co/gL5PbcNc/clubs.png')">
+        <img src="https://i.ibb.co/gL5PbcNc/clubs.png">
+      </div>
+    
+      <div class="banner-carrusel-item"
+      onclick="abrirTestimonio('https://i.ibb.co/LX6m2yQx/envios-1.png')">
+        <img src="https://i.ibb.co/LX6m2yQx/envios-1.png">
+      </div>
+    
+      <div class="banner-carrusel-item"
+      onclick="abrirTestimonio('https://i.ibb.co/yFHGDcj9/apartados.png')">
+        <img src="https://i.ibb.co/yFHGDcj9/apartados.png">
+      </div>
+    
+      <div class="banner-carrusel-item"
+      onclick="abrirTestimonio('https://i.ibb.co/6JN5xVHB/separadores.png')">
+        <img src="https://i.ibb.co/6JN5xVHB/separadores.png">
+      </div>
+    
+</div>
+
+
+<!-- DESTACADOS -->
+<h2 class="section-title">Libros destacados</h2>
+<div class="carrusel">
+  
+      <div class="carrusel-item">
+        <img src="https://i.ibb.co/d06W0tc1/tompicos.png">
+      </div>
+    
+      <div class="carrusel-item">
+        <img src="https://i.ibb.co/fR4YFnd/destrozv.jpg">
+      </div>
+    
+      <div class="carrusel-item">
+        <img src="https://i.ibb.co/G31dfD5D/este-dolorjpg.jpg">
+      </div>
+    
+      <div class="carrusel-item">
+        <img src="https://i.ibb.co/8LxTjDBN/81-Le-Yr8-QDJL.jpg">
+      </div>
+    
+      <div class="carrusel-item">
+        <img src="https://i.ibb.co/tPZY7tTd/71-MQ4-Re-IYIL-AC-UF894-1000-QL80.jpg">
+      </div>
+    
+      <div class="carrusel-item">
+        <img src="https://i.ibb.co/C3gCYvq2/81-Vp-Ckf3z-HL-AC-UF894-1000-QL80.jpg">
+      </div>
+    
+</div>
+
+<!-- BENEFICIOS -->
+<div class="beneficios-section">
+  <h2 class="section-title" style="color:white;">¿Por qué Tertulia Librería?</h2>
+  <div class="beneficios-grid">
+    <div class="benef-card"><div class="benef-card-icon">📚</div>Amplia seleccion </div>
+    <div class="benef-card"><div class="benef-card-icon">🚚</div>Envíos rápidos</div>
+    <div class="benef-card"><div class="benef-card-icon">❤️</div>Atención personalizada</div>
+    <div class="benef-card"><div class="benef-card-icon">💸</div>Precios accesibles</div>
+  </div>
+</div>
+
+<!-- QUIÉNES SOMOS -->
+<div class="acordeon">
+  <div class="acordeon-titulo" onclick="toggleAcordeon()">¿Quiénes somos?</div>
+  <div class="acordeon-contenido" id="acordeonTxt">
+    En Librería Tertulia creemos, desde nuestros inicios en 2016, que los libros tienen la capacidad de acercar a las personas, abrir mundos y transformar vidas. Nacimos ante una necesidad real: en nuestra localidad no existían librerías, y conseguir un libro implicaba viajar a otras ciudades o comprar en línea con altos costos y largas esperas.
+Por eso creamos un espacio accesible para todo tipo de lector, donde es posible encontrar historias, aprendizaje y cultura sin complicaciones. A lo largo de estos años hemos trabajado para ofrecer precios accesibles, títulos seleccionados con cariño y un servicio cercano, porque en Tertulia creemos que leer no debe ser un lujo, sino una puerta siempre abierta.
+Nuestro objetivo es seguir creciendo, ampliar nuestro catálogo y convertirnos en la librería número uno de la localidad, siendo un punto de encuentro para quienes comparten el amor por la lectura.
+  </div>
+</div>
+
+<!-- TESTIMONIOS -->
+<h2 class="section-title">Lo que dicen nuestros lectores</h2>
+<div class="testimonios">
+  <div class="testimonios-grid">
+  
+      <div class="testimonio-item" onclick="abrirTestimonio('https://i.ibb.co/xq0g5HgG/testimonio1.jpg')">
+        <img src="https://i.ibb.co/xq0g5HgG/testimonio1.jpg">
+      </div>
+    
+      <div class="testimonio-item" onclick="abrirTestimonio('https://i.ibb.co/fYm85z4d/testimonio2.jpg')">
+        <img src="https://i.ibb.co/fYm85z4d/testimonio2.jpg">
+      </div>
+    
+      <div class="testimonio-item" onclick="abrirTestimonio('https://i.ibb.co/sdNQGTC3/testimonio3.jpg')">
+        <img src="https://i.ibb.co/sdNQGTC3/testimonio3.jpg">
+      </div>
+    
+      <div class="testimonio-item" onclick="abrirTestimonio('https://i.ibb.co/jPhVcd5Q/Screenshot-20251212-111249-3.jpg')">
+        <img src="https://i.ibb.co/jPhVcd5Q/Screenshot-20251212-111249-3.jpg">
+      </div>
+    
+</div>
+
+<!-- MAPA -->
+<h2 class="section-title">Nuestra ubicación</h2>
+<iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d927.8811196495404!2d-102.23723312839864!3d21.52633810474992!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8429859e674d6237%3A0x78994f5dd5c13307!2sLibrer%C3%ADa%20Tertulia!5e0!3m2!1sen!2smx!4v1765501572248!5m2!1sen!2smx" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+
+<!-- EVENTOS -->
+
+
+<!-- FOOTER -->
+<footer>
+  © 2025 Tertulia Librería — Todos los derechos reservados.
+</footer>
+
+
+<!-- BOTONES FLOTANTES -->
+<div class="flotantes">
+  <a class="flotante-btn"
+     style="background:#25D366"
+     href="https://wa.me/524751070540"
+     target="_blank">
+     💬
+  </a>
+
+  <a class="flotante-btn"
+     style="background:#0d47a1"
+     href="libros.html">
+     📚
+  </a>
+</div>
+
+
+<script>
+function toggleAcordeon(){
+  const c = document.getElementById("acordeonTxt");
+  c.style.display = c.style.display === "block" ? "none" : "block";
+}
+
+/* ===== CARRUSEL INFINITO + ZOOM ===== */
+function activarCarrusel(selector, itemSelector) {
+  const contenedores = document.querySelectorAll(selector);
+  if (!contenedores.length) return;
+
+  contenedores.forEach(contenedor => {
+
+    // duplicar contenido para infinito
+    contenedor.innerHTML += contenedor.innerHTML;
+
+    function actualizarZoom() {
+      const items = contenedor.querySelectorAll(itemSelector);
+      const centro = contenedor.scrollLeft + contenedor.offsetWidth / 2;
+
+      items.forEach(item => {
+        const itemCentro = item.offsetLeft + item.offsetWidth / 2;
+        item.classList.toggle(
+          "item-activo",
+          Math.abs(centro - itemCentro) < item.offsetWidth / 2
+        );
+      });
+    }
+
+    contenedor.addEventListener("scroll", () => {
+      if (contenedor.scrollLeft >= contenedor.scrollWidth / 2) {
+        contenedor.scrollLeft = 0;
+      }
+      actualizarZoom();
+    });
+
+    actualizarZoom();
+  });
+}
+
+function abrirTestimonio(url) {
+  const modal = document.getElementById("modalTestimonio");
+  const img = document.getElementById("modalTestimonioImg");
+  img.src = url;
+  modal.style.display = "flex";
+}
+
+function cerrarTestimonio() {
+  const modal = document.getElementById("modalTestimonio");
+  modal.style.display = "none";
+}
+
+
+window.addEventListener("load", () => {
+   activarCarrusel(".carrusel", ".carrusel-item");
+});
+/* ===== MODAL LIBRO (ARRIBOS) ===== */
+function abrirLibro(img, titulo, texto) {
+  document.getElementById("modalTitulo").innerText = titulo;
+  document.getElementById("modalTexto").innerText = texto;
+
+  const mensaje = encodeURIComponent(
+  'Hola, me interesa el libro "' + titulo + '". ¿Me das más información?'
+);
+
+
+  document.getElementById("modalWhatsapp").href =
+    "https://wa.me/524751070540?text=" + mensaje;
+
+  document.getElementById("modalLibro").style.display = "flex";
+}
+
+function cerrarLibro() {
+  document.getElementById("modalLibro").style.display = "none";
+}
+</script>
+
+<div class="modal-libro" id="modalLibro">
+  <div class="modal-contenido">
+
+    <div class="modal-header">
+      <img src="https://i.ibb.co/gMkLKyBQ/logo-gof.gif" class="modal-logo">
+      <h3 id="modalTitulo"></h3>
+      <span class="modal-cerrar" onclick="cerrarLibro()">✕</span>
+    </div>
+
+    <div class="modal-body">
+      <div class="modal-texto" id="modalTexto"></div>
+
+      <a id="modalWhatsapp"
+         class="modal-btn"
+         target="_blank">
+         📞 Quiero este libro
+      </a>
+    </div>
+
+  </div>
+</div>
+
+
+</body>
+</html>
