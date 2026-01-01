@@ -1,16 +1,46 @@
-import requests
+from __future__ import print_function
+import os
+from googleapiclient.discovery import build
+from google.oauth2.service_account import Credentials
 
-URL_HTML_SHEETS = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTnk86vrqjfLTuPW_-PJm86Ufk52R34oHWi_ESp2UwNjicjLQrMISqFQo7rntJ4H-Uy-AKOMzWgJPxM/pub?output=html"
+# ID de tu hoja:
+SPREADSHEET_ID = "1zbbNAIZ8NIGizU0WxNAESx9vL5vUSbJZOUaop3P4Dow"
 
-def descargar_html_desde_sheets():
-    print("📥 Descargando HTML desde Google Sheets…")
-    response = requests.get(URL_HTML_SHEETS)
-    response.encoding = "utf-8"
+# Archivo donde se guardará el HTML
+OUTPUT_FILE = "libros.html"
 
-    with open("libros.html", "w", encoding="utf-8") as f:
-        f.write(response.text)
+def obtener_html_desde_sheets():
+    creds = Credentials.from_service_account_file(
+        r"..\enlace-suma-sheets-14eb650c31a8.json",
+        scopes=["https://www.googleapis.com/auth/spreadsheets.readonly"]
+    )
 
-    print("✔ Catálogo actualizado correctamente en libros.html")
+    service = build("sheets", "v4", credentials=creds)
+    sheet = service.spreadsheets()
+    
+    # LEER TODAS LAS FILAS DE LA HOJA HTML
+    result = sheet.values().get(
+        spreadsheetId=SPREADSHEET_ID,
+        range="HTML!A:A"   # TODA LA COLUMNA
+    ).execute()
+
+    values = result.get("values", [])
+
+    html_completo = ""
+    for fila in values:
+        if fila:               # evita filas vacías
+            html_completo += fila[0]
+
+    return html_completo
+
+
+def guardar_html(html):
+    with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
+        f.write(html)
+
 
 if __name__ == "__main__":
-    descargar_html_desde_sheets()
+    print("📥 Descargando HTML desde Google Sheets...")
+    html = obtener_html_desde_sheets()
+    guardar_html(html)
+    print("✔ Catálogo actualizado correctamente en libros.html")
