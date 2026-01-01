@@ -11,7 +11,7 @@ OUTPUT_FILE = "libros.html"
 
 def obtener_html_desde_sheets():
     creds = Credentials.from_service_account_file(
-        r"..\enlace-suma-sheets-14eb650c31a8.json",
+    r"C:\Users\W 10\Desktop\Enlace suma\enlace-suma-sheets-14eb650c31a8.json",
         scopes=["https://www.googleapis.com/auth/spreadsheets.readonly"]
     )
 
