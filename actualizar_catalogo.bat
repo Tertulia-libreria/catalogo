@@ -1,3 +1,3 @@
 @echo off
-start "" /min "%~dp0actualizar_catalogo_core.bat"
+start "" /min cmd /c "%~dp0actualizar_catalogo_core.bat"
 exit

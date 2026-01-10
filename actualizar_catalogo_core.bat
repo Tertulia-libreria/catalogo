@@ -1,37 +1,53 @@
 @echo off
-title Actualización de Catálogo
-echo === INICIANDO ACTUALIZACION ===
+REM =====================================
+REM  ACTUALIZAR CATÁLOGO - PROCESO CENTRAL
+REM =====================================
 
 cd /d "%~dp0"
 
-echo === EJECUTANDO SYNC SUMA ===
+echo.
+echo ================================
+echo 🚀 INICIANDO ACTUALIZACIÓN
+echo ================================
+echo.
+
+REM === SYNC SUMA ===
+echo 🔄 Ejecutando sincronización con SUMA...
 py sync_suma.py
 if errorlevel 1 goto error
+echo ✅ Inventario sincronizado correctamente
+echo.
 
-echo === GENERANDO HTML DESDE SHEETS ===
+REM === GENERAR HTML ===
+echo 🧩 Generando HTML completo desde Google Sheets...
 py generar_html_web.py
 if errorlevel 1 goto error
+echo ✅ HTML generado correctamente (libros.html)
+echo.
 
-echo === SUBIENDO A GITHUB ===
+REM === GITHUB ===
+echo ☁️ Subiendo cambios a GitHub...
 git add libros.html
-
-git diff --cached --quiet
-if %errorlevel%==0 (
-  echo No hay cambios que subir.
-  exit /b 0
-)
-
 git commit -m "Actualiza catálogo"
 git push
+if errorlevel 1 goto error
+echo ✅ Cambios subidos correctamente a GitHub
+echo.
 
-echo === ACTUALIZACION COMPLETA ===
+echo ================================
+echo 🎉 ACTUALIZACIÓN COMPLETA
+echo ================================
+echo.
+
+REM === TODO OK: CERRAR ===
 exit /b 0
 
 :error
 echo.
-echo ======================================
+echo ================================
 echo ❌ ERROR EN EL PROCESO
-echo ======================================
+echo ================================
+echo Revisa el mensaje anterior para más detalles.
 echo.
 pause
 exit /b 1
