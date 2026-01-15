@@ -137,6 +137,14 @@
   <span id="contadorPagina"></span>
   <button onclick="cambiarPagina(paginaActual+1)">→</button>
 </div>
+ 
+<div id="contadorCategorias" style="
+  text-align:center;
+  font-size:14px;
+  color:#555;
+  margin-bottom:10px;
+">
+</div>
 
 <div class="botones-flotantes">
   <button id="volverBtn" onclick="volverACategorias()">←</button>
@@ -156,7 +164,33 @@ var todosLibros = [];
 var viendoFavs = false;
 var productosPendientes = [];
 var renderizando = false;
+function normalizar(texto){
+  return texto
+    .toString()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+}
 
+function actualizarContadorCategorias(){
+  const categoria = document.getElementById("categoria").value;
+  const total = librosFiltrados.length;
+
+  let texto = "";
+
+  if (viendoFavs) {
+    texto = "Favoritos - " + total + " libros";
+  } 
+  else if (categoria) {
+    texto = categoria + " - " + total + " libros";
+  } 
+  else {
+    texto = "Todas las categorías - " + total + " libros";
+  }
+
+  document.getElementById("contadorCategorias").textContent = texto;
+}
 /* ================= FETCH JSON ================= */
 fetch("https://script.google.com/macros/s/AKfycby0I4zJSTM1bpWNB0QVpktidbyuXDzZFa1EjfZblZ0zwhkBrtAxYU45BQT88uHZhZYGPQ/exec")
   .then(r => r.json())
@@ -286,35 +320,10 @@ function inicializar(){
   });
 
   mostrarPagina(1);
+actualizarContadorCategorias();
 }
 
   
-
-/* ================= FILTROS ================= */
-document.getElementById("buscador").oninput = filtrar;
-document.getElementById("categoria").onchange = filtrar;
-
-function filtrar(){
-  const texto = document.getElementById("buscador").value.toLowerCase();
-  const categoria = document.getElementById("categoria").value;
-
-  viendoFavs = false;
-  document.getElementById("volverBtn").style.display = "none";
-
-  librosFiltrados = todosLibros.filter(p => {
-    const t = p.dataset.titulo || "";
-    const a = p.dataset.autor || "";
-    const c = p.dataset.categoria || "";
-
-    const coincideTexto = t.includes(texto) || a.includes(texto);
-    const usarCategoria = texto.length === 0;
-const coincideCategoria = !usarCategoria || !categoria || c === categoria;
-
-return coincideTexto && coincideCategoria;
-  });
-
-  mostrarPagina(1);
-}
 
 /* ================= PAGINACIÓN ================= */
 function mostrarPagina(p){
@@ -333,6 +342,8 @@ function mostrarPagina(p){
   document.getElementById("contadorPagina").textContent =
     "Página " + paginaActual + " / " + totalPaginas;
 
+  actualizarContadorCategorias();
+
   // 🔝 subir al inicio al cambiar página
   window.scrollTo({
     top: 0,
@@ -349,41 +360,38 @@ function cambiarPagina(p){
 
 
 /* ================= FILTROS ================= */
-function cambiarPagina(p){
-  const totalPaginas = Math.ceil(librosFiltrados.length / librosPorPagina);
-  if (p < 1 || p > totalPaginas) return;
-  mostrarPagina(p);
-}
-
-/* ================= FILTROS ================= */
 document.getElementById("buscador").oninput=filtrar;
 document.getElementById("categoria").onchange=filtrar;
 
 function filtrar(){
-  const texto = document.getElementById("buscador").value.toLowerCase().trim();
+  const texto = normalizar(
+    document.getElementById("buscador").value
+  );
+
   const categoria = document.getElementById("categoria").value;
 
   viendoFavs = false;
   document.getElementById("volverBtn").style.display = "none";
 
   librosFiltrados = todosLibros.filter(p => {
-    const t = p.dataset.titulo || "";
-    const a = p.dataset.autor || "";
-    const c = p.dataset.categoria || "";
+    const titulo = normalizar(p.dataset.titulo || "");
+    const autor  = normalizar(p.dataset.autor || "");
+    const cat    = p.dataset.categoria || "";
 
-    const coincideTexto = t.includes(texto) || a.includes(texto);
+    const coincideTexto =
+      titulo.includes(texto) || autor.includes(texto);
 
-    // 🔑 SI hay texto → ignorar categoría
+    // 🔑 Si hay texto → ignora categoría
     if (texto.length > 0) {
       return coincideTexto;
     }
 
-    // 🔑 SI NO hay texto → usar categoría
-    const coincideCategoria = !categoria || c === categoria;
-    return coincideCategoria;
+    // 🔑 Si no hay texto → usa categoría
+    return !categoria || cat === categoria;
   });
 
   mostrarPagina(1);
+actualizarContadorCategorias();
 }
 
 /* ================= FAVORITOS ================= */
@@ -452,6 +460,7 @@ function mostrarFavoritos(){
   document.getElementById("volverBtn").style.display = "block";
 
   mostrarPagina(1);
+actualizarContadorCategorias();
 }
 
 function volverACategorias(){
