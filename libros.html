@@ -154,6 +154,8 @@ var paginaActual = 1;
 var librosFiltrados = [];
 var todosLibros = [];
 var viendoFavs = false;
+var productosPendientes = [];
+var renderizando = false;
 
 /* ================= FETCH JSON ================= */
 fetch("https://script.google.com/macros/s/AKfycby0I4zJSTM1bpWNB0QVpktidbyuXDzZFa1EjfZblZ0zwhkBrtAxYU45BQT88uHZhZYGPQ/exec")
@@ -168,45 +170,111 @@ fetch("https://script.google.com/macros/s/AKfycby0I4zJSTM1bpWNB0QVpktidbyuXDzZFa
 /* ================= BUILD ================= */
 function construirCategorias(libros){
   const sel = document.getElementById("categoria");
-  [...new Set(libros.map(l => l.categoria))].sort().forEach(c=>{
-    const o=document.createElement("option");
-    o.value=c;o.textContent=c;sel.appendChild(o);
+  sel.innerHTML = '<option value="">📂 Todas las categorías</option>';
+
+  const categorias = [...new Set(libros.map(l => l.categoria).filter(Boolean))].sort();
+
+  categorias.forEach(c => {
+    const o = document.createElement("option");
+    o.value = c;
+    o.textContent = c;
+    sel.appendChild(o);
   });
 }
-
 function construirCatalogo(libros){
   const c = document.getElementById("catalogo");
-  c.innerHTML="";
-  libros.forEach(L=>{
-    const d=document.createElement("div");
-    d.className="producto";
-    d.dataset.titulo = String(L.titulo || "").toLowerCase();
-    d.dataset.autor  = String(L.autor  || "").toLowerCase();
-    d.dataset.categoria=L.categoria||"";
-    d.innerHTML=`
-      <div class="estrella" onclick="toggleFav(this)">☆</div>
-<div class="stars-container"></div>
-      <a href="https://wa.me/${numero}?text=${encodeURIComponent("Hola! Me interesa "+L.titulo+" $"+L.precio)}" target="_blank" style="color:inherit;text-decoration:none">
-        <img src="${L.imagen}">
-        <div class="titulo">${L.titulo}</div>
-        <div class="autor">${L.autor}</div>
-        <div class="precio">
-  $${L.precio} MXN · 
-  <span class="estado ${L.existencia>0?'ok':'no'}">
-    ${L.existencia>0 ? "✔ Disponible" : "✖ Agotado"}
-  </span>
-</div>
-      </a>`;
-    c.appendChild(d);
+  c.innerHTML = "";
+
+  todosLibros = []; // 🔑 resetear aquí
+
+  const primeros = libros.slice(0, librosPorPagina);
+  productosPendientes = libros.slice(librosPorPagina);
+
+  primeros.forEach(L => {
+    const prod = crearProducto(L);
+    c.appendChild(prod);
+    todosLibros.push(prod);
   });
+
+  cargarEnSegundoPlano();
+}
+function crearProducto(L){
+  const d = document.createElement("div");
+  d.className = "producto";
+  d.dataset.titulo = String(L.titulo || "").toLowerCase();
+  d.dataset.autor  = String(L.autor  || "").toLowerCase();
+  d.dataset.categoria = L.categoria || "";
+
+  d.innerHTML = `
+    <div class="estrella" onclick="toggleFav(this)">☆</div>
+    <div class="stars-container"></div>
+
+    <a href="https://wa.me/${numero}?text=${encodeURIComponent(
+      "Hola! Me interesa " + L.titulo + " $" + L.precio
+    )}" target="_blank" style="color:inherit;text-decoration:none">
+
+      <img 
+        src="${L.imagen}"
+        loading="lazy"
+        decoding="async"
+        width="200"
+        height="200"
+      >
+
+      <div class="titulo">${L.titulo}</div>
+      <div class="autor">${L.autor}</div>
+
+      <div class="precio">
+        $${L.precio} MXN · 
+        <span class="estado ${L.existencia > 0 ? 'ok' : 'no'}">
+          ${L.existencia > 0 ? "✔ Disponible" : "✖ Agotado"}
+        </span>
+      </div>
+    </a>
+  `;
+
+  return d;
+}
+
+function cargarEnSegundoPlano(){
+  if(renderizando || productosPendientes.length === 0) return;
+  renderizando = true;
+
+  const cargar = () => {
+    const c = document.getElementById("catalogo");
+    let contador = 0;
+
+    while(productosPendientes.length && contador < 10){
+      const prod = crearProducto(productosPendientes.shift());
+      c.appendChild(prod);
+      todosLibros.push(prod); // ✔️ aquí SÍ está bien
+      contador++;
+    }
+
+    renderizando = false;
+
+// 🔁 reaplicar paginación solo si estamos en vista normal//
+if (!viendoFavs && !document.getElementById("categoria").value) {
+  librosFiltrados = [...todosLibros];
+  mostrarPagina(paginaActual);
+}
+
+    if(productosPendientes.length){
+      if("requestIdleCallback" in window){
+        requestIdleCallback(cargar);
+      } else {
+        setTimeout(cargar, 120);
+      }
+    }
+  };
+
+  cargar();
 }
 
 function inicializar(){
-  todosLibros = [...document.querySelectorAll(".producto")];
   librosFiltrados = [...todosLibros];
   favs = JSON.parse(localStorage.getItem("favoritosTertulia") || "[]");
 
-  // ⭐ sincronizar estrellas
   todosLibros.forEach(p => {
     const titulo = p.querySelector(".titulo").innerText;
     const estrella = p.querySelector(".estrella");
@@ -239,9 +307,10 @@ function filtrar(){
     const c = p.dataset.categoria || "";
 
     const coincideTexto = t.includes(texto) || a.includes(texto);
-    const coincideCategoria = !categoria || c === categoria;
+    const usarCategoria = texto.length === 0;
+const coincideCategoria = !usarCategoria || !categoria || c === categoria;
 
-    return coincideTexto && coincideCategoria;
+return coincideTexto && coincideCategoria;
   });
 
   mostrarPagina(1);
@@ -291,7 +360,7 @@ document.getElementById("buscador").oninput=filtrar;
 document.getElementById("categoria").onchange=filtrar;
 
 function filtrar(){
-  const texto = document.getElementById("buscador").value.toLowerCase();
+  const texto = document.getElementById("buscador").value.toLowerCase().trim();
   const categoria = document.getElementById("categoria").value;
 
   viendoFavs = false;
@@ -303,9 +372,15 @@ function filtrar(){
     const c = p.dataset.categoria || "";
 
     const coincideTexto = t.includes(texto) || a.includes(texto);
-    const coincideCategoria = !categoria || c === categoria;
 
-    return coincideTexto && coincideCategoria;
+    // 🔑 SI hay texto → ignorar categoría
+    if (texto.length > 0) {
+      return coincideTexto;
+    }
+
+    // 🔑 SI NO hay texto → usar categoría
+    const coincideCategoria = !categoria || c === categoria;
+    return coincideCategoria;
   });
 
   mostrarPagina(1);
