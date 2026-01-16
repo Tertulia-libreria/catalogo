@@ -117,6 +117,39 @@
     #titulo{width:25%}
     #categoria,#buscador{width:35%}
   }
+/* ===== SKELETON LOADER ===== */
+.skeleton {
+  background: white;
+  border-radius: 12px;
+  padding: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  animation: skeletonPulse 1.2s infinite ease-in-out;
+}
+
+.skeleton .img {
+  width: 100%;
+  height: 200px;
+  background: #e0e0e0;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.skeleton .line {
+  height: 14px;
+  background: #e0e0e0;
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+
+.skeleton .line.short {
+  width: 60%;
+}
+
+@keyframes skeletonPulse {
+  0% { opacity: .5 }
+  50% { opacity: .85 }
+  100% { opacity: .5 }
+}
 </style>
 </head>
 
@@ -147,8 +180,7 @@
 </div>
 
 <div class="botones-flotantes">
-  <button id="volverBtn" onclick="volverACategorias()">←</button>
-  <button id="favoritosBtn" onclick="mostrarFavoritos()">⭐</button>
+  <button id="favoritosBtn" onclick="irAFavoritos()">⭐</button>
   <a id="whatsapp" href="https://wa.me/524751070540" target="_blank">💬</a>
 </div>
 
@@ -172,6 +204,35 @@ function normalizar(texto){
     .toLowerCase()
     .trim();
 }
+function obtenerEstadoDesdeURL(){
+  const params = new URLSearchParams(window.location.search);
+
+  if (params.get("favoritos") === "1") {
+    return { vista: "favoritos" };
+  }
+
+  const categoria = params.get("categoria");
+  if (categoria) {
+    return { vista: "categoria", categoria };
+  }
+
+  return { vista: "todas" };
+}
+
+function irAFavoritos(){
+  history.pushState({ vista: "favoritos" }, "", "?favoritos=1");
+  mostrarFavoritos();
+}
+
+
+function actualizarURLCategoria(categoria){
+  const url = categoria
+  ? `?categoria=${encodeURIComponent(categoria)}`
+  : window.location.pathname;
+
+
+  history.pushState({ categoria }, "", url);
+}
 
 function actualizarContadorCategorias(){
   const categoria = document.getElementById("categoria").value;
@@ -191,7 +252,25 @@ function actualizarContadorCategorias(){
 
   document.getElementById("contadorCategorias").textContent = texto;
 }
+function mostrarSkeletons(cantidad = 12){
+  const c = document.getElementById("catalogo");
+  c.innerHTML = "";
+
+  for(let i=0;i<cantidad;i++){
+    const sk = document.createElement("div");
+    sk.className = "producto skeleton";
+    sk.innerHTML = `
+      <div class="img"></div>
+      <div class="line"></div>
+      <div class="line short"></div>
+      <div class="line short"></div>
+    `;
+    c.appendChild(sk);
+  }
+}
 /* ================= FETCH JSON ================= */
+mostrarSkeletons(12);
+
 fetch("https://script.google.com/macros/s/AKfycby0I4zJSTM1bpWNB0QVpktidbyuXDzZFa1EjfZblZ0zwhkBrtAxYU45BQT88uHZhZYGPQ/exec")
   .then(r => r.json())
   .then(data => {
@@ -199,7 +278,23 @@ fetch("https://script.google.com/macros/s/AKfycby0I4zJSTM1bpWNB0QVpktidbyuXDzZFa
     construirCategorias(libros);
     construirCatalogo(libros);
     inicializar();
+
+    const estado = obtenerEstadoDesdeURL();
+
+if (estado.vista === "categoria") {
+  document.getElementById("categoria").value = estado.categoria;
+  filtrar();
+}
+
+if (estado.vista === "favoritos") {
+  mostrarFavoritos();
+}
+  })
+  .catch(err => {
+    console.error("Error cargando catálogo", err);
   });
+
+   
 
 /* ================= BUILD ================= */
 function construirCategorias(libros){
@@ -279,27 +374,26 @@ function cargarEnSegundoPlano(){
     let contador = 0;
 
     while(productosPendientes.length && contador < 10){
-      const prod = crearProducto(productosPendientes.shift());
-      c.appendChild(prod);
-      todosLibros.push(prod); // ✔️ aquí SÍ está bien
-      contador++;
-    }
+  const prod = crearProducto(productosPendientes.shift());
+  prod.style.display = "none"; // 🔑 CLAVE
+  c.appendChild(prod);
+  todosLibros.push(prod);
+  contador++;
+}
 
     renderizando = false;
 
-// 🔁 reaplicar paginación solo si estamos en vista normal//
-if (!viendoFavs && !document.getElementById("categoria").value) {
+    if (productosPendientes.length) {
+  if ("requestIdleCallback" in window) {
+    requestIdleCallback(cargar);
+  } else {
+    setTimeout(cargar, 120);
+  }
+} else {
+  // 🔑 cuando ya terminó TODO
   librosFiltrados = [...todosLibros];
   mostrarPagina(paginaActual);
 }
-
-    if(productosPendientes.length){
-      if("requestIdleCallback" in window){
-        requestIdleCallback(cargar);
-      } else {
-        setTimeout(cargar, 120);
-      }
-    }
   };
 
   cargar();
@@ -361,8 +455,12 @@ function cambiarPagina(p){
 
 /* ================= FILTROS ================= */
 document.getElementById("buscador").oninput=filtrar;
-document.getElementById("categoria").onchange=filtrar;
-
+document.getElementById("categoria").onchange = () => {
+  actualizarURLCategoria(
+    document.getElementById("categoria").value
+  );
+  filtrar();
+};
 function filtrar(){
   const texto = normalizar(
     document.getElementById("buscador").value
@@ -371,7 +469,7 @@ function filtrar(){
   const categoria = document.getElementById("categoria").value;
 
   viendoFavs = false;
-  document.getElementById("volverBtn").style.display = "none";
+ 
 
   librosFiltrados = todosLibros.filter(p => {
     const titulo = normalizar(p.dataset.titulo || "");
@@ -451,24 +549,37 @@ function toggleFav(el){
 function mostrarFavoritos(){
   viendoFavs = true;
 
-  // filtrar solo favoritos
   librosFiltrados = todosLibros.filter(p =>
     favs.includes(p.querySelector(".titulo").innerText)
   );
 
-  // mostrar botón volver
-  document.getElementById("volverBtn").style.display = "block";
-
+  
   mostrarPagina(1);
-actualizarContadorCategorias();
+  actualizarContadorCategorias();
 }
 
-function volverACategorias(){
-  viendoFavs=false;
-  librosFiltrados=[...todosLibros];
+window.addEventListener("popstate", () => {
+  const estado = obtenerEstadoDesdeURL();
+
+
+  viendoFavs = false;
+
+  if (estado.vista === "favoritos") {
+    mostrarFavoritos();
+    return;
+  }
+
+  if (estado.vista === "categoria") {
+    document.getElementById("categoria").value = estado.categoria;
+    filtrar();
+    return;
+  }
+
+  // vista "todas"
+  document.getElementById("categoria").value = "";
+  librosFiltrados = [...todosLibros];
   mostrarPagina(1);
-  document.getElementById("volverBtn").style.display="none";
-}
+});
 </script>
 
 </body>
