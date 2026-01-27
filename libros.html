@@ -220,9 +220,11 @@ function obtenerEstadoDesdeURL(){
 }
 
 function irAFavoritos(){
+  viendoFavs = true;
   history.pushState({ vista: "favoritos" }, "", "?favoritos=1");
   mostrarFavoritos();
 }
+
 
 
 function actualizarURLCategoria(categoria){
@@ -505,10 +507,9 @@ function toggleFav(el){
 
     // 👇 si estamos viendo favoritos → quitar al instante
     if (viendoFavs) {
-      producto.remove();
-      librosFiltrados = librosFiltrados.filter(p => p !== producto);
-      mostrarPagina(paginaActual);
-    }
+  mostrarFavoritos(); // 🔑 recalcula correctamente favoritos
+}
+
 
   } else {
     // ⭐ agregar favorito
@@ -576,9 +577,12 @@ window.addEventListener("popstate", () => {
   }
 
   // vista "todas"
-  document.getElementById("categoria").value = "";
-  librosFiltrados = [...todosLibros];
-  mostrarPagina(1);
+viendoFavs = false;
+document.getElementById("categoria").value = "";
+librosFiltrados = [...todosLibros];
+mostrarPagina(1);
+actualizarContadorCategorias();
+
 });
 </script>
 
