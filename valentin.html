@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Libros que me robaron el corazón 💘</title>
+
+<!-- OPEN GRAPH / WHATSAPP PREVIEW -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="💘 Mis libros favoritos – Tertulia Librería">
+<meta property="og:description" content="Estos son los libros que me encantaría recibir este San Valentín 📚✨">
+<meta property="og:image" content="https://hermessemreh82-maker.github.io/prueba-san-Valent-n/preview-valentin.jpg">
+<meta property="og:url" content="https://hermessemreh82-maker.github.io/prueba-san-Valent-n/valentin.html">
+
+<!-- EXTRA -->
+<meta name="twitter:card" content="summary_large_image">
+
+<style>
+body{
+  margin:0;
+  font-family:'Arial',sans-serif;
+  background:linear-gradient(180deg,#fff0f5,#ffe6ef);
+  overflow-x:hidden;
+}
+
+/* ❤️ corazones flotando */
+.heart{
+  position:fixed;
+  bottom:-20px;
+  color:rgba(255,105,135,.35);
+  font-size:20px;
+  animation:float 12s linear infinite;
+  pointer-events:none;
+}
+@keyframes float{
+  0%{transform:translateY(0);opacity:0}
+  10%{opacity:1}
+  100%{transform:translateY(-120vh);opacity:0}
+}
+
+/* encabezado */
+header{
+  text-align:center;
+  padding:30px 20px;
+}
+header h1{
+  margin:0;
+  color:#c2185b;
+}
+header p{
+  margin-top:10px;
+  color:#880e4f;
+}
+
+/* grid */
+.catalogo{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
+  gap:16px;
+  padding:20px;
+}
+
+/* tarjetas */
+.card{
+  background:white;
+  border-radius:14px;
+  padding:12px;
+  box-shadow:0 6px 18px rgba(0,0,0,.1);
+  text-align:center;
+  animation:fadeIn .5s ease;
+}
+@keyframes fadeIn{
+  from{opacity:0;transform:scale(.95)}
+  to{opacity:1;transform:scale(1)}
+}
+.card img{
+  width:100%;
+  height:220px;
+  object-fit:contain;
+}
+.titulo{font-weight:700;margin:10px 0 4px}
+.autor{font-size:14px;color:#666}
+.precio{margin:6px 0;font-weight:700;color:#c2185b}
+
+/* botón */
+.btn{
+  margin-top:8px;
+  background:#e53935;
+  color:white;
+  padding:10px 14px;
+  border-radius:30px;
+  text-decoration:none;
+  display:inline-block;
+  font-weight:700;
+  transition:.3s;
+}
+.btn:hover{transform:scale(1.05)}
+
+/* skeleton */
+.skeleton{
+  background:#eee;
+  border-radius:14px;
+  padding:12px;
+  animation:pulse 1.2s infinite;
+}
+.skeleton .box{
+  height:220px;
+  background:#ddd;
+  border-radius:8px;
+}
+.skeleton p{
+  margin-top:15px;
+  font-size:14px;
+  color:#aaa;
+}
+@keyframes pulse{
+  0%{opacity:.5}
+  50%{opacity:1}
+  100%{opacity:.5}
+}
+
+/* footer */
+footer{
+  text-align:center;
+  font-size:13px;
+  color:#888;
+  padding:30px 10px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>💘 Libros que me robaron el corazón 💘</h1>
+  <p>No prometo elegir solo uno 😏📚<br>Pero cualquiera de estos sería el regalo perfecto 💝</p>
+</header>
+
+<div class="catalogo" id="catalogo"></div>
+
+<footer>
+  Hecho con amor_© Tertulia librería 💘
+</footer>
+
+<script>
+/* corazones */
+setInterval(()=>{
+  const h=document.createElement("div");
+  h.className="heart";
+  h.innerText="💖";
+  h.style.left=Math.random()*100+"vw";
+  h.style.fontSize=(14+Math.random()*18)+"px";
+  h.style.animationDuration=(8+Math.random()*8)+"s";
+  document.body.appendChild(h);
+  setTimeout(()=>h.remove(),15000);
+},600);
+
+/* leer URL */
+const params = new URLSearchParams(location.search);
+
+const titulos = params.get("libros")
+  ? params.get("libros").split("|").map(t => decodeURIComponent(t))
+  : [];
+
+const catalogo = document.getElementById("catalogo");
+
+/* skeletons */
+for(let i=0;i<6;i++){
+  catalogo.innerHTML+=`
+    <div class="skeleton">
+      <div class="box"></div>
+      <p>✨ Un momentito… ya casi 💕</p>
+    </div>`;
+}
+
+/* cargar libros reales */
+fetch("https://script.google.com/macros/s/AKfycby0I4zJSTM1bpWNB0QVpktidbyuXDzZFa1EjfZblZ0zwhkBrtAxYU45BQT88uHZhZYGPQ/exec")
+.then(r=>r.json())
+.then(data=>{
+  catalogo.innerHTML="";
+  const lista = titulos.length
+  ? data.libros.filter(l => titulos.includes(l.titulo))
+  : data.libros;
+
+lista.forEach(l=>{
+
+      const base = "https://hermessemreh82-maker.github.io/prueba-san-Valent-n/";
+      const url = base + "valentin.html?libros=" + encodeURIComponent(l.titulo) + "&v=" + Date.now();
+
+      catalogo.innerHTML+=`
+      <div class="card">
+        <img src="${l.imagen}">
+        <div class="titulo">${l.titulo}</div>
+        <div class="autor">${l.autor}</div>
+        <div class="precio">$${l.precio} MXN</div>
+        <a class="btn" target="_blank"
+        href="https://wa.me/524751070540?text=${encodeURIComponent(
+          "Hola 💝 Me gustaría regalar este libro:\n\n📚 "+l.titulo+"\n\n🔗 "+url
+        )}">
+        💌 Regalar este libro
+        </a>
+      </div>`;
+    });
+});
+</script>
+
+</body>
+</html>
