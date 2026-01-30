@@ -313,10 +313,16 @@ mostrarSkeletons(12);
 fetch("https://script.google.com/macros/s/AKfycby0I4zJSTM1bpWNB0QVpktidbyuXDzZFa1EjfZblZ0zwhkBrtAxYU45BQT88uHZhZYGPQ/exec")
   .then(r => r.json())
   .then(data => {
-    libros = data.libros || [];
-    construirCategorias(libros);
-    construirCatalogo(libros);
-    inicializar();
+  const todos = data.libros || [];
+
+  // 🔑 SOLO LIBROS (ignora mayorista y productos)
+  libros = todos.filter(l =>
+    l.autor && String(l.autor).trim() !== ""
+  );
+
+  construirCategorias(libros);
+  construirCatalogo(libros);
+  inicializar();
 
     const estado = obtenerEstadoDesdeURL();
 
