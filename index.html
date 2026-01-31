@@ -538,7 +538,9 @@ footer {
 <!-- ANUNCIO FLOTANTE -->
 <!-- ❤️ SAN VALENTÍN -->
 <script>
-if (localStorage.getItem("sanValentinMostrado") === "1") {
+const STORAGE_KEY = "sanValentin2026";
+
+if (localStorage.getItem(STORAGE_KEY) === "1") {
   const style = document.createElement("style");
   style.innerHTML = `
     #overlaySanValentin, #corazonesCanvas {
@@ -566,7 +568,6 @@ if (localStorage.getItem("sanValentinMostrado") === "1") {
   z-index: 10000;
 }
 
-/* CONTENEDOR */
 #corazonWrapper {
   position: relative;
   width: 220px;
@@ -575,7 +576,6 @@ if (localStorage.getItem("sanValentinMostrado") === "1") {
   animation: latido 1.4s infinite;
 }
 
-/* CORAZÓN */
 #corazonGrande {
   position: absolute;
   inset: 30px;
@@ -604,7 +604,6 @@ if (localStorage.getItem("sanValentinMostrado") === "1") {
   top: 0;
 }
 
-/* TEXTO */
 #textoCorazon {
   position: absolute;
   inset: 0;
@@ -629,7 +628,6 @@ if (localStorage.getItem("sanValentinMostrado") === "1") {
   opacity: .9;
 }
 
-/* CANVAS */
 #corazonesCanvas {
   position: fixed;
   inset: 0;
@@ -652,12 +650,11 @@ if (localStorage.getItem("sanValentinMostrado") === "1") {
 
 <script>
 function activarSanValentin() {
-  localStorage.setItem("sanValentinMostrado", "1");
+  localStorage.setItem(STORAGE_KEY, "1");
   document.getElementById("overlaySanValentin")?.remove();
   lanzarCorazones();
 }
 
-/* 💕 CORAZONES FLOTANDO */
 function lanzarCorazones() {
   const canvas = document.getElementById("corazonesCanvas");
   const ctx = canvas.getContext("2d");
@@ -667,8 +664,8 @@ function lanzarCorazones() {
   let corazones = [];
   let creando = true;
 
-  const DURACION_CREACION = 5000;
-  const TIEMPO_TOTAL = 7000;
+  const DURACION_CREACION = 5000; // ⏱️ aparecen 5s
+  const TIEMPO_TOTAL = 7000;      // ⏱️ animación total
 
   function crearCorazon() {
     return {
@@ -724,6 +721,8 @@ function lanzarCorazones() {
   requestAnimationFrame(animar);
 }
 </script>
+
+
 
 
 
