@@ -536,192 +536,197 @@ footer {
 <body>
 
 <!-- ANUNCIO FLOTANTE -->
-<!-- ANUNCIO CELEBRACIÓN -->
+<!-- ❤️ SAN VALENTÍN -->
 <script>
-// Revisar si ya se mostró antes
-if (localStorage.getItem("celebracionMostrada") === "1") {
-    const style = document.createElement("style");
-    style.innerHTML = `
-      #overlayCelebracion, #confetiCanvas {
-        display: none !important;
-      }
-    `;
-    document.head.appendChild(style);
+if (localStorage.getItem("sanValentinMostrado") === "1") {
+  const style = document.createElement("style");
+  style.innerHTML = `
+    #overlaySanValentin, #corazonesCanvas {
+      display: none !important;
+    }
+  `;
+  document.head.appendChild(style);
 }
 </script>
 
 <style>
-@keyframes pulsoColor {
-  0% { background-position: 0% 50%; box-shadow: 0 0 20px #fff; }
-  50% { background-position: 100% 50%; box-shadow: 0 0 50px #ffd500; }
-  100% { background-position: 0% 50%; box-shadow: 0 0 20px #fff; }
+@keyframes latido {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+  100% { transform: scale(1); }
 }
 
-@keyframes sacudir {
-  0% { transform: translate(0,0); }
-  20% { transform: translate(-2px,2px); }
-  40% { transform: translate(2px,-2px); }
-  60% { transform: translate(-2px,-2px); }
-  80% { transform: translate(2px,2px); }
-  100% { transform: translate(0,0); }
-}
-</style>
-
-<div id="overlayCelebracion" style="
+#overlaySanValentin {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.75);
+  background: rgba(0,0,0,.75);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 10002;
-">
+  z-index: 10000;
+}
 
-  <div id="botonCelebracion" onclick="explotarCelebracion()" style="
-    width: 220px;
-    height: 220px;
-    border-radius: 50%;
-    background: linear-gradient(45deg,#ff0080,#7928ca,#00c6ff,#ffd500);
-    background-size: 400% 400%;
-    animation: pulsoColor 3s infinite, sacudir 1.1s infinite;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    color: white;
-    font-family: 'Segoe UI', Arial, sans-serif;
-    box-shadow: 0 0 40px rgba(255,255,255,0.6);
-    cursor: pointer;
-    padding: 20px;
-    position: relative;
-    overflow: visible;
-  ">
-    <div style="font-size: 20px; font-weight: bold;">
-      YA ESTAMOS<br>EN LÍNEA
-    </div>
-    <div style="font-size: 14px; margin-top: 8px; opacity:0.9;">
-      Toca aquí para celebrar 🎉
-    </div>
-  </div>
+/* CONTENEDOR */
+#corazonWrapper {
+  position: relative;
+  width: 220px;
+  height: 220px;
+  cursor: pointer;
+  animation: latido 1.4s infinite;
+}
 
-</div>
+/* CORAZÓN */
+#corazonGrande {
+  position: absolute;
+  inset: 30px;
+  background: #ff3b6f;
+  transform: rotate(-45deg);
+  box-shadow: 0 0 40px rgba(255,80,120,.7);
+}
 
-<canvas id="confetiCanvas" style="
+#corazonGrande::before,
+#corazonGrande::after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: #ff3b6f;
+  border-radius: 50%;
+}
+
+#corazonGrande::before {
+  top: -50%;
+  left: 0;
+}
+
+#corazonGrande::after {
+  left: 50%;
+  top: 0;
+}
+
+/* TEXTO */
+#textoCorazon {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  text-align: center;
+  pointer-events: none;
+}
+
+#textoCorazon span:first-child {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+#textoCorazon span:last-child {
+  font-size: 14px;
+  margin-top: 6px;
+  opacity: .9;
+}
+
+/* CANVAS */
+#corazonesCanvas {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: 10001;
-"></canvas>
+  z-index: 9999;
+}
+</style>
+
+<div id="overlaySanValentin">
+  <div id="corazonWrapper" onclick="activarSanValentin()">
+    <div id="corazonGrande"></div>
+    <div id="textoCorazon">
+      <span>Feliz San Valentín</span>
+      <span>💕 Toca aquí</span>
+    </div>
+  </div>
+</div>
+
+<canvas id="corazonesCanvas"></canvas>
 
 <script>
-/* ===== CHISPITAS CONSTANTES ===== */
-let chispasActivas = true;
-function lanzarChispas() {
-  if (!chispasActivas) return;
+function activarSanValentin() {
+  localStorage.setItem("sanValentinMostrado", "1");
+  document.getElementById("overlaySanValentin")?.remove();
+  lanzarCorazones();
+}
 
-  const canvas = document.getElementById("confetiCanvas");
+/* 💕 CORAZONES FLOTANDO */
+function lanzarCorazones() {
+  const canvas = document.getElementById("corazonesCanvas");
   const ctx = canvas.getContext("2d");
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
+  canvas.width = innerWidth;
+  canvas.height = innerHeight;
 
-  const boton = document.getElementById("botonCelebracion");
-  if (!boton) return;
+  let corazones = [];
+  let creando = true;
 
-  const rect = boton.getBoundingClientRect();
-  const cx = rect.left + rect.width / 2;
-  const cy = rect.top + rect.height / 2;
+  const DURACION_CREACION = 5000;
+  const TIEMPO_TOTAL = 7000;
 
-  const chispas = Array.from({ length: 25 }, () => ({
-    x: cx,
-    y: cy,
-    vx: (Math.random() - 0.5) * 6,
-    vy: (Math.random() - 0.5) * 6,
-    life: 30,
-    c: `hsl(${Math.random()*360},100%,70%)`
-  }));
-
-  function animar() {
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    chispas.forEach(p => {
-      ctx.fillStyle = p.c;
-      ctx.fillRect(p.x, p.y, 3, 3);
-      p.x += p.vx;
-      p.y += p.vy;
-      p.life--;
-    });
-
-    if (chispas.some(p => p.life > 0) && chispasActivas) {
-      requestAnimationFrame(animar);
-    }
+  function crearCorazon() {
+    return {
+      x: Math.random() * canvas.width,
+      y: canvas.height + 40,
+      s: Math.random() * 0.6 + 0.4,
+      v: Math.random() * 1.5 + 0.8,
+      o: Math.random() * 0.7 + 0.3
+    };
   }
-  animar();
-}
 
-setInterval(lanzarChispas, 450);
+  function dibujarCorazon(x, y, s, o) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.scale(s, s);
+    ctx.globalAlpha = o;
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.bezierCurveTo(-20, -20, -40, 10, 0, 40);
+    ctx.bezierCurveTo(40, 10, 20, -20, 0, 0);
+    ctx.fillStyle = "#ff3b6f";
+    ctx.fill();
+    ctx.restore();
+  }
 
-/* ===== CLICK ===== */
-function explotarCelebracion() {
+  const inicio = performance.now();
 
-  // 🔥 Guardar que ya se mostró
-  localStorage.setItem("celebracionMostrada", "1");
+  function animar(t) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  sonidoCelebracion.currentTime = 0;
-  sonidoCelebracion.play();
+    if (t - inicio < DURACION_CREACION && creando) {
+      if (Math.random() < 0.35) {
+        corazones.push(crearCorazon());
+      }
+    } else {
+      creando = false;
+    }
 
-  chispasActivas = false;
-
-  const boton = document.getElementById("botonCelebracion");
-  const overlay = document.getElementById("overlayCelebracion");
-
-  if (overlay) overlay.remove();
-  if (boton) boton.remove();
-
-  lanzarConfeti();
-}
-
-/* ===== CONFETI FINAL ===== */
-function lanzarConfeti() {
-  const canvas = document.getElementById("confetiCanvas");
-  const ctx = canvas.getContext("2d");
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-
-  const piezas = Array.from({length: 260}, () => ({
-    x: Math.random() * canvas.width,
-    y: Math.random() * -canvas.height,
-    r: Math.random() * 6 + 4,
-    c: `hsl(${Math.random()*360},100%,60%)`,
-    v: Math.random() * 4 + 2
-  }));
-
-  let frames = 0;
-  function animar() {
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    piezas.forEach(p => {
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
-      ctx.fillStyle = p.c;
-      ctx.fill();
-      p.y += p.v;
+    corazones.forEach(c => {
+      dibujarCorazon(c.x, c.y, c.s, c.o);
+      c.y -= c.v;
     });
 
-    frames++;
-    if (frames < 200) {
+    corazones = corazones.filter(c => c.y > -60);
+
+    if (t - inicio < TIEMPO_TOTAL || corazones.length > 0) {
       requestAnimationFrame(animar);
     } else {
-      ctx.clearRect(0,0,canvas.width,canvas.height);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
   }
-  animar();
+
+  requestAnimationFrame(animar);
 }
-
-const sonidoCelebracion = new Audio(
-  "https://hermessemreh82-maker.github.io/tertulia/celebracion.mp3"
-);
-sonidoCelebracion.volume = 0.5;
-
 </script>
+
+
+
 
 <!-- AVISO COMERCIAL DESTELLANTE -->
 <style>
