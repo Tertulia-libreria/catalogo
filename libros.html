@@ -184,6 +184,28 @@
   50% { opacity: .85 }
   100% { opacity: .5 }
 }
+/* ===== SPINNER DE CARGA ===== */
+.loading-box{
+  height:200px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:14px;
+}
+
+.spinner{
+  width:36px;
+  height:36px;
+  border:4px solid #e0e0e0;
+  border-top:4px solid #0d47a1;
+  border-radius:50%;
+  animation:spin 1s linear infinite;
+}
+
+@keyframes spin{
+  to{ transform:rotate(360deg); }
+}
 </style>
 </head>
 
@@ -291,54 +313,79 @@ function actualizarContadorCategorias(){
 
   document.getElementById("contadorCategorias").textContent = texto;
 }
-function mostrarSkeletons(cantidad = 12){
+function mostrarSkeletons(cantidad = 12, totalLibros = 0){
   const c = document.getElementById("catalogo");
   c.innerHTML = "";
 
   for(let i=0;i<cantidad;i++){
     const sk = document.createElement("div");
     sk.className = "producto skeleton";
-    sk.innerHTML = `
-      <div class="img"></div>
-      <div class="line"></div>
-      <div class="line short"></div>
-      <div class="line short"></div>
-    `;
+
+    // 🔑 SOLO EL PRIMERO lleva spinner + texto
+    if(i === 0){
+  sk.innerHTML = `
+    <div class="loading-box">
+      <div class="spinner"></div>
+      <div style="font-size:14px;color:#555;text-align:center;">
+        Un momento… cargando <strong>más de 1000 títulos</strong>
+      </div>
+    </div>
+    <div class="line"></div>
+    <div class="line short"></div>
+  `;
+}else {
+      sk.innerHTML = `
+        <div class="img"></div>
+        <div class="line"></div>
+        <div class="line short"></div>
+        <div class="line short"></div>
+      `;
+    }
+
     c.appendChild(sk);
   }
 }
 /* ================= FETCH JSON ================= */
+// 🔥 mostrar skeleton INMEDIATAMENTE
 mostrarSkeletons(12);
 
 fetch("https://script.google.com/macros/s/AKfycby0I4zJSTM1bpWNB0QVpktidbyuXDzZFa1EjfZblZ0zwhkBrtAxYU45BQT88uHZhZYGPQ/exec")
-  .then(r => r.json())
+  .then(r => r.json()) // 🔑 ESTE ERA EL ERROR
   .then(data => {
-  const todos = data.libros || [];
 
-  // 🔑 SOLO LIBROS (ignora mayorista y productos)
-  libros = todos.filter(l =>
-    l.autor && String(l.autor).trim() !== ""
-  );
+    const todos = data.libros || [];
+    const totalReal = todos.length;
 
-  construirCategorias(libros);
-  construirCatalogo(libros);
-  inicializar();
+    // ✅ Mostrar skeleton + spinner
+    mostrarSkeletons(12, totalReal);
 
-    const estado = obtenerEstadoDesdeURL();
+    // ✅ Filtrar solo libros válidos
+    libros = todos.filter(l =>
+      l.autor && String(l.autor).trim() !== ""
+    );
 
-if (estado.vista === "categoria") {
-  document.getElementById("categoria").value = estado.categoria;
-  filtrar();
-}
+    // ⏳ permitir que se vea la animación
+    setTimeout(() => {
+      construirCategorias(libros);
+      construirCatalogo(libros);
+      inicializar();
 
-if (estado.vista === "favoritos") {
-  mostrarFavoritos();
-}
+      const estado = obtenerEstadoDesdeURL();
+
+      if (estado.vista === "categoria") {
+        document.getElementById("categoria").value = estado.categoria;
+        filtrar();
+      }
+
+      if (estado.vista === "favoritos") {
+        mostrarFavoritos();
+      }
+    }, 500);
   })
   .catch(err => {
-    console.error("Error cargando catálogo", err);
+    console.error("❌ Error cargando catálogo", err);
+    alert("Error cargando el catálogo");
   });
-
    
 
 /* ================= BUILD ================= */
