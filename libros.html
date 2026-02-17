@@ -126,18 +126,24 @@
   bottom:25px;
   left:50%;
   transform:translateX(-50%);
-  background:linear-gradient(45deg,#e53935,#ff1744);
+  background:linear-gradient(45deg,#0d47a1,#1565c0);
   color:white;
   border:none;
-  padding:14px 26px;
+  padding:14px 28px;
   font-size:16px;
   font-weight:700;
   border-radius:40px;
-  box-shadow:0 6px 18px rgba(0,0,0,.3);
+  box-shadow:0 6px 18px rgba(0,0,0,.25);
   display:none;
   cursor:pointer;
   z-index:999;
-  animation:pulse 1.6s infinite;
+  animation:pulseBtn 2s infinite;
+}
+
+@keyframes pulseBtn{
+  0%{transform:translateX(-50%) scale(1)}
+  50%{transform:translateX(-50%) scale(1.05)}
+  100%{transform:translateX(-50%) scale(1)}
 }
 @keyframes pulse{
   0%{transform:translateX(-50%) scale(1)}
@@ -239,8 +245,8 @@
   <button id="favoritosBtn" onclick="irAFavoritos()">⭐</button>
   <a id="whatsapp" href="https://wa.me/524751070540" target="_blank">💬</a>
   </div>
-<button id="valentinBtn" onclick="enviarValentin()">
-  💖 Enviar a mi Valentín
+<button id="valentinBtn" onclick="enviarSolicitud()">
+  📚 Quiero estos libros
 </button>
 
 <script>
@@ -263,25 +269,47 @@ function normalizar(texto){
     .toLowerCase()
     .trim();
 }
+function guardarEstadoEnURL(){
+  const params = new URLSearchParams();
+
+  if (viendoFavs) {
+    params.set("favoritos", "1");
+  }
+
+  const categoria = document.getElementById("categoria").value;
+  if (categoria) {
+    params.set("categoria", categoria);
+  }
+
+  params.set("pagina", paginaActual);
+
+  const nuevaURL = "?" + params.toString();
+
+  history.pushState(
+    { 
+      pagina: paginaActual,
+      scroll: window.scrollY
+    },
+    "",
+    nuevaURL
+  );
+}
+
 function obtenerEstadoDesdeURL(){
   const params = new URLSearchParams(window.location.search);
 
-  if (params.get("favoritos") === "1") {
-    return { vista: "favoritos" };
-  }
-
-  const categoria = params.get("categoria");
-  if (categoria) {
-    return { vista: "categoria", categoria };
-  }
-
-  return { vista: "todas" };
+  return {
+    favoritos: params.get("favoritos") === "1",
+    categoria: params.get("categoria") || "",
+    pagina: parseInt(params.get("pagina")) || 1
+  };
 }
 
 function irAFavoritos(){
   viendoFavs = true;
-  history.pushState({ vista: "favoritos" }, "", "?favoritos=1");
+  paginaActual = 1;
   mostrarFavoritos();
+guardarEstadoEnURL(); // 🔥 importante
 }
 
 
@@ -369,17 +397,19 @@ fetch("https://script.google.com/macros/s/AKfycby0I4zJSTM1bpWNB0QVpktidbyuXDzZFa
       construirCategorias(libros);
       construirCatalogo(libros);
       inicializar();
+const estado = obtenerEstadoDesdeURL();
 
-      const estado = obtenerEstadoDesdeURL();
+viendoFavs = estado.favoritos;
+document.getElementById("categoria").value = estado.categoria;
 
-      if (estado.vista === "categoria") {
-        document.getElementById("categoria").value = estado.categoria;
-        filtrar();
-      }
+if (viendoFavs) {
+  mostrarFavoritos();
+} else {
+  filtrar();
+}
 
-      if (estado.vista === "favoritos") {
-        mostrarFavoritos();
-      }
+mostrarPagina(estado.pagina);
+
     }, 500);
   })
   .catch(err => {
@@ -512,7 +542,7 @@ actualizarContadorCategorias();
   
 
 /* ================= PAGINACIÓN ================= */
-function mostrarPagina(p){
+function mostrarPagina(p, conservarScroll = false){
   paginaActual = p;
 
   const totalPaginas = Math.ceil(librosFiltrados.length / librosPorPagina);
@@ -530,18 +560,20 @@ function mostrarPagina(p){
 
   actualizarContadorCategorias();
 
-  // 🔝 subir al inicio al cambiar página
-  window.scrollTo({
-    top: 0,
-    behavior: "smooth"
-  });
-  actualizarBotonValentin();
+  if (!conservarScroll) {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+  }
 }
 
 function cambiarPagina(p){
   const totalPaginas = Math.ceil(librosFiltrados.length / librosPorPagina);
   if (p < 1 || p > totalPaginas) return;
+
   mostrarPagina(p);
+  guardarEstadoEnURL();
 }
 
 
@@ -563,6 +595,8 @@ function filtrar(){
 
   viendoFavs = false;
  
+// 🔥 volver a mostrar botón estrella
+  document.getElementById("favoritosBtn").style.display = "flex";
 
   librosFiltrados = todosLibros.filter(p => {
     const titulo = normalizar(p.dataset.titulo || "");
@@ -583,6 +617,7 @@ function filtrar(){
 
   mostrarPagina(1);
 actualizarContadorCategorias();
+actualizarBotonValentin();
 }
 
 /* ================= FAVORITOS ================= */
@@ -656,6 +691,8 @@ function toggleFav(el){
 
 function mostrarFavoritos(){
   viendoFavs = true;
+// 🔥 ocultar botón flotante estrella
+  document.getElementById("favoritosBtn").style.display = "none";
 
   librosFiltrados = todosLibros.filter(p =>
     favs.includes(p.querySelector(".titulo").innerText)
@@ -674,62 +711,55 @@ function mostrarFavoritos(){
   actualizarBotonValentin();
 }
 
-window.addEventListener("popstate", () => {
-  document.getElementById("valentinBtn").style.display = "none";
+window.addEventListener("popstate", (event) => {
+
   const estado = obtenerEstadoDesdeURL();
 
-  viendoFavs = false;
-  actualizarBotonValentin();
+  viendoFavs = estado.favoritos;
+  document.getElementById("categoria").value = estado.categoria;
 
-  if (estado.vista === "favoritos") {
+  if (viendoFavs) {
     mostrarFavoritos();
-    return;
-  }
-
-  if (estado.vista === "categoria") {
-    document.getElementById("categoria").value = estado.categoria;
+  } else {
     filtrar();
-    return;
   }
 
-  // vista "todas"
-viendoFavs = false;
-document.getElementById("categoria").value = "";
-librosFiltrados = [...todosLibros];
-mostrarPagina(1);
-actualizarContadorCategorias();
-actualizarBotonValentin();
+  // 🔥 mostrar página normal
+  mostrarPagina(estado.pagina);
+
+  // 🔥 forzar scroll arriba
+  window.scrollTo({
+    top: 0,
+    behavior: "auto"
+  });
 });
 
-function enviarValentin(){
+
+
+function enviarSolicitud(){
+
   if (!favs || favs.length === 0) {
-    alert("Agrega libros a favoritos primero");
+    alert("Agrega libros a favoritos primero 📚");
     return;
   }
 
-  // 🔗 construir lista de libros
-  const lista = favs
-    .map(t => encodeURIComponent(t))
-    .join("|");
+  const librosSeleccionados = todosLibros
+    .filter(p => favs.includes(p.querySelector(".titulo").innerText))
+    .map(p => {
+      const titulo = p.querySelector(".titulo").innerText;
+      const precio = p.querySelector(".precio").innerText.split("·")[0].trim();
+      return "• " + titulo + " – " + precio;
+    });
 
-  // 🔥 URL única para forzar preview en WhatsApp
-  const url =
-    "https://tertulia-libreria.github.io/catalogo/valentin.html" +
-    "?libros=" + lista +
-    "&v=" + Date.now();
-
-  // 💌 MENSAJE EXACTO como lo quieres
   const mensaje =
-    "❤️❤️❤️ Ups...\n\n" +
-    "Se me escapo esta lista\n" +
-    "justo antes de San Valentin 😊\n\n" +
-    "📚 Libros que me encantan:\n" +
-    url + "\n\n" +
-    "✨ Cualquier cosa... fue el destino 💙";
+    "Hola 👋\n\n" +
+    "Me interesan los siguientes libros:\n\n" +
+    librosSeleccionados.join("\n") +
+    "\n\n¿Me confirmas disponibilidad? 📚✨\n" +
+    "Gracias.";
 
-  // 📲 abrir WhatsApp
   window.open(
-    "https://wa.me/?text=" + encodeURIComponent(mensaje),
+    "https://wa.me/" + numero + "?text=" + encodeURIComponent(mensaje),
     "_blank"
   );
 }
