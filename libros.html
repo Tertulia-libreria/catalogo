@@ -18,8 +18,52 @@
 <link rel="icon" href="favicon.ico">
 
 <style>
-  body{margin:0;font-family:Arial;background:#f2f6ff;padding-bottom:120px;}
-  #barra{position:sticky;top:0;background:#0d47a1;padding:12px;z-index:999;color:#fff;display:flex;flex-direction:column;align-items:center;gap:10px;}
+/* ===== Barra promocional fija correcta ===== */
+#barraPromo{
+  position:fixed;
+  top:60px;   /* ajusta si necesitas */
+  left:0;
+  width:100%;
+  background:#FFE082;
+  color:#333;
+  text-align:center;
+  font-weight:600;
+  font-size:14px;
+  padding:8px 10px;
+  z-index:999;
+}
+
+
+#mensajePromo{
+  display:inline-block;
+  transition:opacity .4s ease;
+}
+
+  body{
+  margin:0;
+  font-family:Arial;
+  background:#f2f6ff;
+  padding-top:115px;  /* suma de ambas */
+  padding-bottom:120px;
+}
+
+
+  #barra{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  box-sizing: border-box;
+  background:#0d47a1;
+  padding:12px 20px;
+  z-index:1000;
+  color:#fff;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:10px;
+}
+
   #titulo{font-weight:600;font-size:20px;color:#fff;margin:0;}
   #categoria,#buscador{box-sizing:border-box;width:100%;max-width:520px;padding:10px;border-radius:8px;border:none;font-size:15px;display:block;}
   #categoria,#buscador{background:#fff;}
@@ -223,6 +267,9 @@
     <option value="">📂 Todas las categorías</option>
   </select>
   <input id="buscador" placeholder="🔍 Buscar por título o autor">
+</div>
+<div id="barraPromo">
+  <span id="mensajePromo"></span>
 </div>
 
 <div class="catalogo" id="catalogo"></div>
@@ -763,6 +810,28 @@ function enviarSolicitud(){
     "_blank"
   );
 }
+/* ===== MENSAJES ROTATIVOS PROMO ===== */
+
+const mensajesPromo = [
+  "🚚 Envíos a toda la República Mexicana",
+  "🏠 Servicio a domicilio GRATIS en compras superiores a $200"
+];
+
+let indicePromo = 0;
+const contenedorPromo = document.getElementById("mensajePromo");
+
+function cambiarMensajePromo(){
+  contenedorPromo.style.opacity = 0;
+
+  setTimeout(()=>{
+    contenedorPromo.textContent = mensajesPromo[indicePromo];
+    contenedorPromo.style.opacity = 1;
+    indicePromo = (indicePromo + 1) % mensajesPromo.length;
+  }, 300);
+}
+
+contenedorPromo.textContent = mensajesPromo[0];
+setInterval(cambiarMensajePromo, 6000);
 
 </script>
 
