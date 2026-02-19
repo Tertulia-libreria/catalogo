@@ -833,6 +833,25 @@ function cambiarMensajePromo(){
 contenedorPromo.textContent = mensajesPromo[0];
 setInterval(cambiarMensajePromo, 6000);
 
+/* ===== AJUSTE DINÁMICO BARRA PROMO ===== */
+
+function ajustarBarraPromo(){
+  const barra = document.getElementById("barra");
+  const promo = document.getElementById("barraPromo");
+
+  if(!barra || !promo) return;
+
+  const alturaBarra = barra.offsetHeight;
+  promo.style.top = alturaBarra + "px";
+
+  document.body.style.paddingTop =
+    (alturaBarra + promo.offsetHeight) + "px";
+}
+
+window.addEventListener("load", ajustarBarraPromo);
+window.addEventListener("resize", ajustarBarraPromo);
+
+
 </script>
 
 </body>
