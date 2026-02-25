@@ -279,13 +279,37 @@
   <span id="contadorPagina"></span>
   <button onclick="cambiarPagina(paginaActual+1)">→</button>
 </div>
- 
+
 <div id="contadorCategorias" style="
   text-align:center;
   font-size:14px;
   color:#555;
-  margin-bottom:10px;
-">
+  margin:15px 0 5px 0;
+"></div>
+ 
+<div id="contador-social" style="margin:40px 0 20px 0; display:flex; justify-content:center;">
+  <div style="
+    background:#ffffff;
+    border-radius:14px;
+    padding:20px 30px;
+    box-shadow:0 6px 18px rgba(0,0,0,0.08);
+    width:100%;
+    max-width:420px;
+  ">
+
+    <div style="
+      text-align:center;
+      font-weight:700;
+      font-size:15px;
+      margin-bottom:14px;
+      color:#0d47a1;
+    ">
+      👀 Usuarios en este momento
+    </div>
+
+    <div id="lista-usuarios"></div>
+
+  </div>
 </div>
 
 <div class="botones-flotantes">
@@ -851,7 +875,237 @@ function ajustarBarraPromo(){
 window.addEventListener("load", ajustarBarraPromo);
 window.addEventListener("resize", ajustarBarraPromo);
 
+/* =====================================
+   CONTADOR SOCIAL DINÁMICO INTELIGENTE v3
+   Más dinámico, realista y sin ceros
+   México siempre líder
+   ===================================== */
 
+const paisesAmerica = [
+  { nombre: "México", codigo: "mx" },
+  { nombre: "Guatemala", codigo: "gt" },
+  { nombre: "Estados Unidos", codigo: "us" },
+  { nombre: "Colombia", codigo: "co" },
+  { nombre: "Argentina", codigo: "ar" },
+  { nombre: "Chile", codigo: "cl" },
+  { nombre: "Perú", codigo: "pe" },
+  { nombre: "El Salvador", codigo: "sv" }
+];
+
+/* -------- Nivel según hora -------- */
+
+function nivelSegunHora() {
+  const hora = new Date().getHours();
+
+  if (hora >= 6 && hora < 12) {
+    return { maxPaises: 2, maxVisitas: 3 };
+  }
+  if (hora >= 12 && hora < 18) {
+    return { maxPaises: 3, maxVisitas: 6 };
+  }
+  if (hora >= 18 && hora < 23) {
+    return { maxPaises: 4, maxVisitas: 12 };
+  }
+
+  return { maxPaises: 1, maxVisitas: 2 };
+}
+
+/* -------- Generar estado inicial -------- */
+
+function generarEstadoInicial() {
+  const hoy = new Date().toDateString();
+  const nivel = nivelSegunHora();
+
+  let cantidadPaises = Math.floor(Math.random() * nivel.maxPaises) + 1;
+
+  let seleccionados = paisesAmerica
+    .filter(p => p.nombre !== "México")
+    .sort(() => 0.5 - Math.random())
+    .slice(0, cantidadPaises - 1);
+
+  seleccionados.unshift(paisesAmerica[0]);
+
+  const mexicoBase = Math.floor(Math.random() * nivel.maxVisitas) + 1;
+
+  const data = {
+    fecha: hoy,
+    paises: seleccionados.map(p => ({
+      ...p,
+      visitas: p.nombre === "México"
+        ? Math.max(1, mexicoBase)
+        : Math.max(1, Math.floor(Math.random() * mexicoBase))
+    }))
+  };
+
+  localStorage.setItem("contadorSocial", JSON.stringify(data));
+  return data;
+}
+
+/* -------- Obtener estado -------- */
+
+function obtenerEstado() {
+  const hoy = new Date().toDateString();
+  let data = JSON.parse(localStorage.getItem("contadorSocial"));
+
+  if (!data || data.fecha !== hoy) {
+    return generarEstadoInicial();
+  }
+
+  // 🔥 LIMPIEZA ANTICEROS
+  data.paises = data.paises.filter(p => p.visitas > 0);
+
+  data.paises.forEach(p => {
+    if (p.visitas < 1) p.visitas = 1;
+  });
+
+  // Garantizar México
+  if (!data.paises.find(p => p.nombre === "México")) {
+    data.paises.unshift({
+      nombre: "México",
+      codigo: "mx",
+      visitas: 1
+    });
+  }
+
+  localStorage.setItem("contadorSocial", JSON.stringify(data));
+  return data;
+}
+
+/* -------- Actualizar cada 3 minutos -------- */
+
+function actualizarEstado() {
+
+  let data = obtenerEstado();
+  const nivel = nivelSegunHora();
+
+  // Garantizar México
+  if (!data.paises.find(p => p.nombre === "México")) {
+    data.paises.unshift({
+      nombre: "México",
+      codigo: "mx",
+      visitas: 1
+    });
+  }
+
+  const mexicoObj = data.paises.find(p => p.nombre === "México");
+
+  // Ajustar visitas
+  data.paises.forEach(p => {
+
+    let cambio = Math.floor(Math.random() * 3) - 1; // -1,0,+1
+    p.visitas += cambio;
+
+    // Nunca 0
+    if (p.visitas < 1) p.visitas = 1;
+
+    if (p.nombre === "México") {
+
+      // México sube un poco más dinámico
+      p.visitas += Math.floor(Math.random() * 2);
+
+      if (p.visitas > nivel.maxVisitas)
+        p.visitas = nivel.maxVisitas;
+
+    } else {
+
+      // Nunca superar a México
+      if (p.visitas >= mexicoObj.visitas) {
+        p.visitas = Math.max(1, mexicoObj.visitas - 1);
+      }
+    }
+  });
+
+  /* ----- Movimiento de países ----- */
+
+  if (Math.random() < 0.6) {  // más dinámico pero creíble
+
+    // Agregar país
+    if (data.paises.length < nivel.maxPaises && Math.random() < 0.6) {
+
+      const disponibles = paisesAmerica.filter(p =>
+        p.nombre !== "México" &&
+        !data.paises.find(x => x.nombre === p.nombre)
+      );
+
+      if (disponibles.length > 0) {
+        const nuevo = disponibles[Math.floor(Math.random() * disponibles.length)];
+        data.paises.push({
+          ...nuevo,
+          visitas: 1
+        });
+      }
+
+    } 
+    // Quitar país (nunca México)
+    else if (data.paises.length > 1 && Math.random() < 0.3) {
+
+      data.paises = data.paises.filter(p =>
+        p.nombre === "México" || Math.random() > 0.5
+      );
+    }
+  }
+
+  localStorage.setItem("contadorSocial", JSON.stringify(data));
+  mostrarContador();
+}
+
+/* -------- Mostrar -------- */
+
+function mostrarContador() {
+  const data = obtenerEstado();
+  data.paises = data.paises.filter(p => p.visitas > 0);
+  const contenedor = document.getElementById("lista-usuarios");
+  contenedor.innerHTML = "";
+
+  const mapaBanderas = {
+    "México": "🇲🇽",
+    "Guatemala": "🇬🇹",
+    "Estados Unidos": "🇺🇸",
+    "Colombia": "🇨🇴",
+    "Argentina": "🇦🇷",
+    "Chile": "🇨🇱",
+    "Perú": "🇵🇪",
+    "El Salvador": "🇸🇻"
+  };
+
+  data.paises
+    .sort((a,b) => b.visitas - a.visitas)
+    .forEach(p => {
+
+      contenedor.innerHTML += `
+        <div style="
+          display:flex;
+          align-items:center;
+          justify-content:space-between;
+          padding:8px 12px;
+          margin-bottom:6px;
+          background:#f4f7ff;
+          border-radius:10px;
+        ">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span style="font-size:18px;">
+              ${mapaBanderas[p.nombre] || ""}
+            </span>
+            <span style="font-weight:500;">
+              ${p.nombre}
+            </span>
+          </div>
+
+          <div style="
+            font-weight:700;
+            color:#0d47a1;
+          ">
+            ${p.visitas}
+          </div>
+        </div>
+      `;
+    });
+}
+
+/* -------- Inicializar -------- */
+
+mostrarContador();
+setInterval(actualizarEstado, 180000); // 3 minutos
 </script>
 
 </body>
