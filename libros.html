@@ -15,9 +15,16 @@
 <title>Tertulia Librería</title>
 
 <!-- Favicon (si lo tienes) -->
-<link rel="icon" href="favicon.ico">
+
 
 <style>
+<link rel="icon" href="favicon.ico">
+
+#categoria option[value="pdf"]{
+font-weight:700;
+color:#0d47a1;
+}
+
 /* ===== Barra promocional fija correcta ===== */
 #barraPromo{
   position:fixed;
@@ -491,17 +498,28 @@ mostrarPagina(estado.pagina);
 
 /* ================= BUILD ================= */
 function construirCategorias(libros){
+
   const sel = document.getElementById("categoria");
-  sel.innerHTML = '<option value="">📂 Todas las categorías</option>';
+
+  sel.innerHTML = `
+  <option value="">📂 Todas las categorías</option>
+  <option value="pdf">📚 Digitales PDF</option>
+  `;
 
   const categorias = [...new Set(libros.map(l => l.categoria).filter(Boolean))].sort();
 
   categorias.forEach(c => {
+
     const o = document.createElement("option");
+
     o.value = c;
+
     o.textContent = c;
+
     sel.appendChild(o);
+
   });
+
 }
 function construirCatalogo(libros){
   const c = document.getElementById("catalogo");
@@ -650,14 +668,26 @@ function cambiarPagina(p){
 
 
 /* ================= FILTROS ================= */
-document.getElementById("buscador").oninput=filtrar;
+
+document.getElementById("buscador").oninput = filtrar;
+
 document.getElementById("categoria").onchange = () => {
-  actualizarURLCategoria(
-    document.getElementById("categoria").value
-  );
+
+  const categoria = document.getElementById("categoria").value;
+
+  // Si seleccionan la categoria PDF abrir catalogo digital
+  if (categoria === "pdf") {
+    window.open("digitales.html", "_blank");
+    return;
+  }
+
+  actualizarURLCategoria(categoria);
+
   filtrar();
 };
+
 function filtrar(){
+
   const texto = normalizar(
     document.getElementById("buscador").value
   );
