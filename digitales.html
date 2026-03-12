@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Biblioteca Digital | Tertulia Librería</title>
+
+<style>
+
+*{
+box-sizing:border-box;
+}
+
+body{
+font-family:Arial;
+margin:0;
+background:#f3f6fb;
+}
+
+/* HEADER */
+
+header{
+background:#0d47a1;
+color:white;
+text-align:center;
+padding:20px;
+}
+
+header h1{
+margin:0;
+font-size:26px;
+}
+
+header p{
+margin-top:6px;
+opacity:.9;
+}
+
+/* CONTENEDOR */
+
+.container{
+max-width:1000px;
+margin:auto;
+padding:20px;
+width:100%;
+}
+
+/* CAJA SOLICITUD */
+
+.solicitud-box{
+
+background:linear-gradient(135deg,#0d47a1,#1565c0);
+
+color:white;
+
+padding:30px;
+
+border-radius:14px;
+
+box-shadow:0 6px 18px rgba(0,0,0,.18);
+
+margin-bottom:35px;
+
+}
+
+.solicitud-box h2{
+
+margin-top:0;
+
+font-size:22px;
+
+}
+
+.solicitud-box p{
+
+opacity:.9;
+
+}
+
+/* INPUTS */
+
+.solicitud-box input,
+.solicitud-box textarea{
+
+width:100%;
+
+max-width:100%;
+
+padding:14px;
+
+margin-top:12px;
+
+border:none;
+
+border-radius:10px;
+
+font-size:16px;
+
+display:block;
+
+}
+
+.solicitud-box textarea{
+
+height:90px;
+
+resize:none;
+
+}
+
+/* BOTON */
+
+.btn-solicitar{
+
+margin-top:18px;
+
+background:#ffd600;
+
+color:#222;
+
+border:none;
+
+padding:14px 22px;
+
+font-size:17px;
+
+border-radius:10px;
+
+font-weight:bold;
+
+cursor:pointer;
+
+transition:.2s;
+
+}
+
+.btn-solicitar:hover{
+
+transform:scale(1.05);
+
+}
+
+/* BUSCADOR */
+
+.buscador{
+
+width:100%;
+
+max-width:600px;
+
+margin:20px auto;
+
+display:block;
+
+padding:14px;
+
+border-radius:10px;
+
+border:1px solid #ccc;
+
+font-size:16px;
+
+}
+
+/* CATALOGO */
+
+.catalogo{
+
+display:grid;
+
+grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
+
+gap:15px;
+
+}
+
+.libro{
+
+background:white;
+
+border-radius:12px;
+
+padding:10px;
+
+box-shadow:0 3px 10px rgba(0,0,0,.1);
+
+text-align:center;
+
+transition:.2s;
+
+}
+
+.libro:hover{
+
+transform:translateY(-4px);
+
+}
+
+.libro img{
+
+width:100%;
+
+height:200px;
+
+object-fit:cover;
+
+border-radius:6px;
+
+}
+
+.titulo{
+
+font-weight:bold;
+
+margin-top:8px;
+
+}
+
+.autor{
+
+font-size:14px;
+
+color:#555;
+
+}
+
+.precio{
+
+color:#0d47a1;
+
+font-weight:bold;
+
+margin:6px 0;
+
+}
+
+.btn{
+
+background:#0d47a1;
+
+color:white;
+
+border:none;
+
+padding:8px 12px;
+
+border-radius:6px;
+
+cursor:pointer;
+
+font-size:14px;
+
+}
+
+footer{
+
+text-align:center;
+
+margin-top:40px;
+
+padding:20px;
+
+color:#666;
+
+font-size:14px;
+
+}
+
+/* RESPONSIVE */
+
+@media(max-width:600px){
+
+header h1{
+font-size:22px;
+}
+
+.solicitud-box{
+padding:22px;
+}
+
+.catalogo{
+grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
+}
+
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+
+<h1>📚 Biblioteca Digital Tertulia</h1>
+
+<p>Miles de libros PDF disponibles</p>
+
+</header>
+
+<div class="container">
+
+<!-- SOLICITUD DESTACADA -->
+
+<div class="solicitud-box">
+
+<h2>🔎 ¿Buscas un libro en PDF?</h2>
+
+<p class="subtexto">(Te conseguimos casi cualquier libro)</p>
+
+<p>Escribe el título del libro que buscas.  
+Te confirmaremos disponibilidad y forma de pago.</p>
+
+<input id="nombreLibro" placeholder="Ejemplo: El Kybalion">
+
+<textarea id="listaLibros" placeholder="También puedes escribir varios libros aquí"></textarea>
+
+<button class="btn-solicitar" onclick="enviarSolicitud()">
+📩 Solicitar por WhatsApp
+</button>
+
+</div>
+
+<!-- BUSCADOR -->
+
+<input class="buscador" id="buscador" placeholder="🔍 Buscar libro en el catálogo">
+
+<!-- CATALOGO -->
+
+<div class="catalogo" id="catalogo"></div>
+
+</div>
+
+<footer>
+
+Tertulia Librería · Biblioteca Digital
+
+</footer>
+
+<script>
+
+const numero="524751070540"
+
+let libros=[]
+
+fetch("https://opensheet.elk.sh/1VW-bZs_NZn39FZXzQDiYD-FDs2kQ2gRZ9DwdQAKgtIU/Sheet1")
+
+.then(res=>res.json())
+
+.then(data=>{
+
+libros=data
+
+mostrarLibros(libros)
+
+
+})
+
+.catch(err=>{
+
+console.log("Error cargando libros:",err)
+
+})
+
+
+const catalogo=document.getElementById("catalogo")
+
+function mostrarLibros(lista){
+
+catalogo.innerHTML=""
+
+lista.forEach(libro=>{
+
+const div=document.createElement("div")
+
+div.className="libro"
+
+div.innerHTML=`
+
+<img src="${libro.imagen}">
+
+<div class="titulo">${libro.titulo}</div>
+
+<div class="autor">${libro.autor}</div>
+
+<div class="precio">$${libro.precio}</div>
+
+<button class="btn" onclick="pedirLibro('${libro.titulo}','${libro.autor}')">
+Solicitar PDF
+</button>
+
+`
+
+catalogo.appendChild(div)
+
+})
+
+}
+
+
+
+document.getElementById("buscador").addEventListener("input",function(){
+
+const texto=this.value.toLowerCase()
+
+const filtrados=libros.filter(l=>
+
+l.titulo.toLowerCase().includes(texto) ||
+
+l.autor.toLowerCase().includes(texto)
+
+)
+
+mostrarLibros(filtrados)
+
+})
+
+function pedirLibro(titulo,autor){
+
+const mensaje=
+
+`Hola!
+
+Me interesa el siguiente libro en PDF:
+
+${titulo}
+${autor}
+
+¿Está disponible?`
+
+window.open(
+
+`https://wa.me/${numero}?text=${encodeURIComponent(mensaje)}`
+
+)
+
+}
+
+function enviarSolicitud(){
+
+const nombre=document.getElementById("nombreLibro").value
+
+const lista=document.getElementById("listaLibros").value
+
+const mensaje=
+
+`Hola!
+
+Estoy buscando los siguientes libros en PDF:
+
+${nombre}
+
+${lista}
+
+¿Los tendrás disponibles?`
+
+window.open(
+
+`https://wa.me/${numero}?text=${encodeURIComponent(mensaje)}`
+
+)
+
+}
+
+</script>
+
+</body>
+</html>
