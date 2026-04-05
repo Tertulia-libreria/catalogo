@@ -530,6 +530,43 @@ footer {
 
 
 
+
+/* ══ BOTÓN SÍLABA — FIJO, NO EDITAR ══ */
+#silaba-tab {
+  position: fixed; left: 0; bottom: 32px; z-index: 9999;
+  display: flex; align-items: flex-end;
+  transform: translateX(0);
+  transition: transform 0.42s cubic-bezier(0.34,1.4,0.64,1);
+  filter: drop-shadow(3px 0 14px rgba(0,201,177,0.35));
+}
+#silaba-tab.hidden { transform: translateX(calc(-100% + 22px)); }
+#silaba-card {
+  background: linear-gradient(160deg,#0d1b2a 0%,#112236 60%,#0a1520 100%);
+  border: 1px solid rgba(0,201,177,0.3); border-left: none;
+  border-radius: 0 14px 14px 0;
+  padding: 14px 14px 14px 16px;
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  cursor: pointer; text-decoration: none; width: 74px;
+  overflow: hidden; position: relative;
+}
+#silaba-card::before {
+  content:''; position:absolute; inset:0;
+  background:radial-gradient(ellipse at 50% 0%,rgba(0,201,177,0.18) 0%,transparent 70%);
+  animation:silabaCardPulse 3s ease-in-out infinite; pointer-events:none;
+}
+@keyframes silabaCardPulse{0%,100%{opacity:.4}50%{opacity:1}}
+#silaba-orb-canvas{width:52px;height:52px;position:relative;z-index:1;flex-shrink:0;}
+.silaba-label{font-size:10px;font-weight:700;color:#00c9b1;letter-spacing:2px;text-transform:uppercase;font-family:'Courier New',monospace;position:relative;z-index:1;white-space:nowrap;}
+.silaba-line{width:38px;height:1px;background:linear-gradient(90deg,transparent,rgba(0,201,177,0.7),transparent);position:relative;z-index:1;animation:silabaLineScan 2.5s ease-in-out infinite;}
+@keyframes silabaLineScan{0%,100%{opacity:.3;transform:scaleX(.5)}50%{opacity:1;transform:scaleX(1)}}
+.silaba-sub{font-size:8.5px;color:rgba(168,204,224,0.6);letter-spacing:.5px;position:relative;z-index:1;white-space:nowrap;margin-top:-4px;}
+.silaba-dot{position:absolute;top:9px;right:9px;width:7px;height:7px;border-radius:50%;background:#00c9b1;box-shadow:0 0 7px rgba(0,201,177,.9);animation:silabaDotPulse 2s ease-in-out infinite;z-index:2;}
+@keyframes silabaDotPulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.6);opacity:.5}}
+#silaba-handle{width:22px;height:64px;background:linear-gradient(180deg,#00c9b1,#00a896);border-radius:0 10px 10px 0;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:width .2s;box-shadow:3px 0 10px rgba(0,201,177,.3);}
+#silaba-handle:hover{width:26px;}
+#silaba-arrow{width:12px;height:12px;fill:none;stroke:white;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;transition:transform .4s ease;flex-shrink:0;}
+#silaba-tab.hidden #silaba-arrow{transform:rotate(180deg);}
+/* ══ FIN BOTÓN SÍLABA ══ */
 </style>
 
 </head>
@@ -642,7 +679,7 @@ footer {
       <div class="carrusel-item"
            onclick="abrirLibro(
              'https://pub-9b73f653292e44e9a1c0843cdc18796f.r2.dev/ojala_esta_fuera_nuestra_historia_de_amor.webp',
-             'Ojala esta fuera nuestra historia de amor',
+             'Ojala esta fuera nuestra historia de amor.',
              ''
            )">
         <img src="https://pub-9b73f653292e44e9a1c0843cdc18796f.r2.dev/ojala_esta_fuera_nuestra_historia_de_amor.webp">
@@ -955,6 +992,80 @@ function cerrarLibro() {
   </div>
 </div>
 
+
+
+<!-- ══ BOTÓN SÍLABA — FIJO, NO EDITAR ══ -->
+<div id="silaba-tab">
+  <a id="silaba-card" href="https://tertulia-libreria.github.io/Silaba/" target="_blank" title="Hablar con Sílaba">
+    <span class="silaba-dot"></span>
+    <canvas id="silaba-orb-canvas"></canvas>
+    <div class="silaba-label">Sílaba</div>
+    <div class="silaba-line"></div>
+    <div class="silaba-sub">Asistente</div>
+  </a>
+  <div id="silaba-handle" onclick="toggleSilaba()">
+    <svg id="silaba-arrow" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+  </div>
+</div>
+<script>
+(function(){
+  const canvas=document.getElementById('silaba-orb-canvas');
+  if(!canvas)return;
+  const ctx=canvas.getContext('2d'),DPR=window.devicePixelRatio||1,W=52,H=52;
+  canvas.width=W*DPR;canvas.height=H*DPR;ctx.scale(DPR,DPR);
+  const cx=W/2,cy=H/2;
+  const SIM="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789αβγδεζηθλμξπσφψωΩ§∞≈∑√∂∇♦★☆✦".split("");
+  const part=Array.from({length:22},(_,i)=>({
+    s:SIM[Math.floor(Math.random()*SIM.length)],a:(i/22)*Math.PI*2,
+    r:17+Math.random()*7,v:(0.012+Math.random()*0.01)*(Math.random()>.5?1:-1),
+    sz:5+Math.random()*4,op:.5+Math.random()*.5,ct:80+Math.floor(Math.random()*120)
+  }));
+  let sa=0,pt=0,ft=0;
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    const pulse=1+Math.sin(pt)*0.07;pt+=0.03;
+    const halo=ctx.createRadialGradient(cx,cy,4,cx,cy,22*pulse);
+    halo.addColorStop(0,'rgba(180,220,255,0)');halo.addColorStop(.5,'rgba(0,201,177,.1)');halo.addColorStop(1,'rgba(0,100,180,0)');
+    ctx.beginPath();ctx.arc(cx,cy,22*pulse,0,Math.PI*2);ctx.fillStyle=halo;ctx.fill();
+    for(let s=0;s<2;s++){
+      ctx.save();ctx.translate(cx,cy);ctx.rotate(sa+Math.PI*s);ctx.beginPath();
+      for(let i=0;i<80;i++){const a=(i/80)*Math.PI*2,r=(3+i*.12)*pulse;const x=Math.cos(a*2.5+sa*.5)*r,y=Math.sin(a*2.5+sa*.5)*r*.6;i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}
+      ctx.strokeStyle=`rgba(120,210,255,${.35-s*.1})`;ctx.lineWidth=.8;ctx.stroke();ctx.restore();
+    }
+    const core=ctx.createRadialGradient(cx,cy,0,cx,cy,10*pulse);
+    core.addColorStop(0,'rgba(255,255,255,.95)');core.addColorStop(.3,'rgba(200,240,255,.8)');core.addColorStop(.6,'rgba(0,201,177,.45)');core.addColorStop(1,'rgba(0,100,180,0)');
+    ctx.beginPath();ctx.arc(cx,cy,10*pulse,0,Math.PI*2);ctx.fillStyle=core;ctx.fill();
+    for(let d=0;d<3;d++){
+      const da=sa*1.8+(Math.PI*2/3)*d,dx=cx+Math.cos(da)*5*pulse,dy=cy+Math.sin(da)*5*pulse;
+      const dest=ctx.createRadialGradient(dx,dy,0,dx,dy,3);
+      dest.addColorStop(0,'rgba(255,255,255,.9)');dest.addColorStop(1,'rgba(255,255,255,0)');
+      ctx.beginPath();ctx.arc(dx,dy,3,0,Math.PI*2);ctx.fillStyle=dest;ctx.fill();
+    }
+    part.forEach(p=>{
+      p.a+=p.v;
+      if(ft%p.ct===0){p.s=SIM[Math.floor(Math.random()*SIM.length)];p.ct=80+Math.floor(Math.random()*120);}
+      const x=cx+Math.cos(p.a)*p.r,y=cy+Math.sin(p.a)*p.r*.65;
+      const dist=Math.sqrt((x-cx)**2+(y-cy)**2),fade=Math.min(1,dist/10);
+      ctx.save();ctx.font=p.sz+"px monospace";
+      ctx.fillStyle=`rgba(${p.a%2<1?'0,201,177':'150,220,255'},${p.op*fade})`;
+      ctx.shadowColor='rgba(0,201,177,.5)';ctx.shadowBlur=4;
+      ctx.fillText(p.s,x-p.sz/3,y+p.sz/3);ctx.restore();
+    });
+    sa+=0.018;ft++;requestAnimationFrame(draw);
+  }
+  draw();
+  // Mostrar y auto-esconder a los 4 segundos
+  const tab=document.getElementById('silaba-tab');
+  setTimeout(()=>tab.classList.add('hidden'),4000);
+})();
+function toggleSilaba(){
+  const tab=document.getElementById('silaba-tab');
+  tab.classList.toggle('hidden');
+}
+document.getElementById('silaba-tab').addEventListener('mouseenter',function(){this.classList.remove('hidden');});
+document.getElementById('silaba-tab').addEventListener('touchstart',function(){},{passive:true});
+</script>
+<!-- ══ FIN BOTÓN SÍLABA ══ -->
 
 </body>
 </html>
