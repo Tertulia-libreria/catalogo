@@ -577,6 +577,211 @@ footer {
 
 
 
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anuncio Mes Patrio</title>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════
+     ANUNCIO FLOTANTE — MES PATRIO 🇲🇽
+     Pega este bloque completo (div + style + script)
+     justo antes de </body>, en el mismo lugar donde
+     hoy tienes ${c.anuncio_flotante_html || ""}
+═══════════════════════════════════════════════ -->
+<div id="mesPatrioOverlay">
+  <div id="mesPatrioContenido">
+    <div id="mesPatrioTextoChico">presiona aquí para festejar</div>
+    <button id="mesPatrioBoton" onclick="festejarMesPatrio()">
+      ¡VIVA MÉXICO! 🇲🇽
+    </button>
+  </div>
+  <div id="mesPatrioLluvia"></div>
+</div>
+
+<style>
+/* ===== Overlay que bloquea toda interacción ===== */
+#mesPatrioOverlay{
+  position:fixed;
+  inset:0;
+  z-index:99999;
+  background:rgba(10,10,15,0.82);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  transition:opacity 0.8s ease, visibility 0.8s ease;
+}
+#mesPatrioOverlay.oculto{
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+}
+/* En cuanto se presiona el botón: se quita el fondo oscuro y el bloqueo,
+   pero la lluvia sigue visible encima mientras termina de caer */
+#mesPatrioOverlay.festejando{
+  background:transparent;
+  pointer-events:none;
+}
+#mesPatrioOverlay.festejando::after{
+  opacity:0;
+}
+
+/* ===== Franja tricolor decorativa abajo ===== */
+#mesPatrioOverlay::after{
+  content:"";
+  position:absolute;
+  bottom:0;left:0;right:0;
+  height:10px;
+  background:linear-gradient(to right,#006341 33%, #ffffff 33% 66%, #ce1126 66%);
+}
+
+/* ===== Botón central ===== */
+#mesPatrioContenido{
+  text-align:center;
+  z-index:2;
+  animation:aparecer 0.6s ease;
+}
+#mesPatrioTextoChico{
+  color:#f5f5f5;
+  font-size:14px;
+  letter-spacing:1px;
+  margin-bottom:14px;
+  opacity:0.85;
+}
+#mesPatrioBoton{
+  font-family:"Georgia", serif;
+  font-size:32px;
+  font-weight:bold;
+  color:#fff;
+  background:linear-gradient(135deg,#006341,#ce1126);
+  border:3px solid #fff;
+  border-radius:50px;
+  padding:22px 44px;
+  cursor:pointer;
+  box-shadow:0 0 0 0 rgba(255,255,255,0.5);
+  animation:pulso 1.6s infinite;
+}
+#mesPatrioBoton:hover{ transform:scale(1.04); }
+
+@keyframes pulso{
+  0%   { box-shadow:0 0 0 0 rgba(255,255,255,0.45); }
+  70%  { box-shadow:0 0 0 22px rgba(255,255,255,0); }
+  100% { box-shadow:0 0 0 0 rgba(255,255,255,0); }
+}
+@keyframes aparecer{
+  from{ opacity:0; transform:scale(0.85); }
+  to  { opacity:1; transform:scale(1); }
+}
+
+/* ===== Lluvia de festejo ===== */
+#mesPatrioLluvia{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+}
+.mp-item{
+  position:absolute;
+  top:-60px;
+  font-size:28px;
+  will-change:transform;
+  animation-name:caer;
+  animation-timing-function:linear;
+  animation-fill-mode:forwards;
+}
+.mp-papel{
+  position:absolute;
+  top:-40px;
+  width:18px;
+  height:26px;
+  border-radius:2px;
+  will-change:transform;
+  animation-name:caerPapel;
+  animation-timing-function:linear;
+  animation-fill-mode:forwards;
+}
+
+@keyframes caer{
+  from{ transform:translateY(0) rotate(0deg); }
+  to  { transform:translateY(110vh) rotate(360deg); }
+}
+@keyframes caerPapel{
+  0%   { transform:translateY(0) rotate(0deg) translateX(0); }
+  50%  { transform:translateY(55vh) rotate(180deg) translateX(30px); }
+  100% { transform:translateY(110vh) rotate(360deg) translateX(-20px); }
+}
+
+@media(max-width:480px){
+  #mesPatrioBoton{ font-size:22px; padding:16px 28px; }
+}
+</style>
+
+<script>
+(function(){
+  // Solo mostrar una vez para siempre (hasta que borren datos del sitio)
+  if (localStorage.getItem("mesPatrioVisto")) {
+    document.getElementById("mesPatrioOverlay").classList.add("oculto");
+  }
+})();
+
+function festejarMesPatrio(){
+  const contenido = document.getElementById("mesPatrioContenido");
+  const lluvia = document.getElementById("mesPatrioLluvia");
+  const overlay = document.getElementById("mesPatrioOverlay");
+
+  contenido.style.display = "none";
+
+  // Desde este instante la página ya se puede usar normalmente:
+  // se quita el fondo oscuro y el bloqueo de clics, pero la lluvia
+  // (que ya tiene pointer-events:none) sigue cayendo encima.
+  overlay.classList.add("festejando");
+
+  const emojis = ["🌮","🌶️","🇲🇽","🪅","🎺","🥑","🫓","🎉"];
+  const coloresPapel = ["#006341","#ffffff","#ce1126"];
+  const totalItems = 60;
+  let maxDuracionTotal = 0;
+
+  for (let i = 0; i < totalItems; i++) {
+    const esPapel = Math.random() < 0.35;
+    const el = document.createElement("div");
+
+    const izquierda = Math.random() * 100;
+    const duracion = 2.5 + Math.random() * 2;
+    const retraso = Math.random() * 1.2;
+    maxDuracionTotal = Math.max(maxDuracionTotal, duracion + retraso);
+
+    if (esPapel) {
+      el.className = "mp-papel";
+      el.style.background = coloresPapel[Math.floor(Math.random()*coloresPapel.length)];
+    } else {
+      el.className = "mp-item";
+      el.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+      el.style.fontSize = (20 + Math.random()*16) + "px";
+    }
+
+    el.style.left = izquierda + "%";
+    el.style.animationDuration = duracion + "s";
+    el.style.animationDelay = retraso + "s";
+
+    lluvia.appendChild(el);
+  }
+
+  // Cuando termina de caer todo, se retira el overlay por completo
+  // (ya no es necesario, la página quedó usable desde el clic)
+  setTimeout(() => {
+    overlay.classList.add("oculto");
+    lluvia.innerHTML = "";
+    localStorage.setItem("mesPatrioVisto", "1");
+  }, (maxDuracionTotal * 1000) + 300);
+}
+</script>
+<!-- ══ FIN ANUNCIO MES PATRIO ══ -->
+
+</body>
+</html>
 
 <!-- AVISO COMERCIAL DESTELLANTE -->
 <style>
