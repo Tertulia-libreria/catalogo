@@ -576,7 +576,230 @@ footer {
 
 
 
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Demo - Anuncio Otoño</title>
+</head>
+<body>
 
+<!-- ══════════════════════════════════════════════
+     ANUNCIO AMBIENTAL — OTOÑO 🍁
+     No bloquea nada, corre siempre de fondo.
+     Pega este bloque completo (div + style + script)
+     justo antes de </body>.
+═══════════════════════════════════════════════ -->
+<div id="otonoFondo">
+  <div id="otonoLluvia"></div>
+  <div id="otonoPila"></div>
+</div>
+
+<style>
+/* ===== Capa de fondo, nunca bloquea clics ===== */
+#otonoFondo{
+  position:fixed;
+  inset:0;
+  z-index:9998;
+  pointer-events:none;
+  overflow:hidden;
+  /* viñeta cálida sutil en las orillas */
+  box-shadow:
+    inset 0 0 140px rgba(180,95,25,0.28),
+    inset 0 0 50px rgba(140,70,15,0.18);
+}
+
+#otonoLluvia, #otonoPila{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+}
+
+/* ===== Hojas y bellotas cayendo ===== */
+.hoja-cae, .bellota-cae{
+  position:absolute;
+  top:-40px;
+  will-change:transform, opacity;
+  animation-timing-function:linear;
+  animation-fill-mode:forwards;
+  opacity:0.9;
+}
+.hoja-cae{ animation-name:caerHoja; }
+.hoja-flota-cae{ animation-name:flotarHoja; }
+.bellota-cae{ animation-name:caerBellota; }
+.calabaza-cae{ animation-name:caerHoja; }
+
+@keyframes caerHoja{
+  0%   { transform:translate(0,0) rotate(0deg); }
+  25%  { transform:translate(calc(var(--sway) * 1px), 24vh) rotate(90deg); }
+  50%  { transform:translate(calc(var(--sway) * -1px), 50vh) rotate(180deg); }
+  75%  { transform:translate(calc(var(--sway) * 1px), 76vh) rotate(270deg); }
+  100% { transform:translate(0, 98vh) rotate(360deg); }
+}
+/* Hoja que flota llevada por el viento un rato antes de finalmente caer */
+@keyframes flotarHoja{
+  0%   { transform:translate(0,0) rotate(0deg); }
+  15%  { transform:translate(calc(var(--sway) * 1px), 5vh) rotate(20deg); }
+  35%  { transform:translate(calc(var(--sway) * -1.2px), 12vh) rotate(-15deg); }
+  55%  { transform:translate(calc(var(--sway2) * 1px), 18vh) rotate(25deg); }
+  72%  { transform:translate(calc(var(--sway2) * -1px), 28vh) rotate(-10deg); }
+  100% { transform:translate(0, 98vh) rotate(340deg); }
+}
+@keyframes caerBellota{
+  0%   { transform:translate(0,0) rotate(0deg); }
+  50%  { transform:translate(calc(var(--sway) * 0.4px), 50vh) rotate(140deg); }
+  100% { transform:translate(0, 98vh) rotate(300deg); }
+}
+
+/* ===== Montoncito acumulado en la esquina inferior izquierda ===== */
+#otonoPila{
+  width:170px;
+  height:150px;
+  left:0;
+  bottom:0;
+  top:auto;
+  right:auto;
+}
+.hoja-pila{
+  position:absolute;
+  bottom:0;
+  transition:transform 0.9s ease-in, opacity 0.9s ease-in;
+}
+.hoja-pila.dispersando{
+  opacity:0;
+}
+@keyframes plop{
+  from{ transform:scale(0.4); opacity:0; }
+  to  { transform:scale(1); opacity:0.95; }
+}
+</style>
+
+<script>
+(function(){
+  const emojisHoja = ["🍁","🍂","🍃"];
+  const emojiBellota = "🌰";
+  const emojiCalabaza = "🎃";
+  const MAX_CONCURRENTES = 22;
+  const MAX_PILA = 18;
+
+  let enVuelo = 0;
+  let calabazaActiva = false;
+  const pila = document.getElementById("otonoPila");
+  const lluvia = document.getElementById("otonoLluvia");
+  const pilaElementos = [];
+  let dispersando = false;
+
+  function crearElementoCayendo(){
+    if (enVuelo >= MAX_CONCURRENTES) return;
+
+    let tipo;
+    if (!calabazaActiva && Math.random() < 0.006) {
+      tipo = "calabaza";
+      calabazaActiva = true;
+    } else if (Math.random() < 0.2) {
+      tipo = "bellota";
+    } else if (Math.random() < 0.12) {
+      tipo = "hoja-flota";
+    } else {
+      tipo = "hoja";
+    }
+
+    const el = document.createElement("div");
+    const tamano = 18 + Math.random()*14;
+    const sway = 30 + Math.random()*50;
+
+    let duracion;
+    switch(tipo){
+      case "bellota":
+        el.textContent = emojiBellota;
+        el.className = "bellota-cae";
+        duracion = 3 + Math.random()*1.2;
+        break;
+      case "calabaza":
+        el.textContent = emojiCalabaza;
+        el.className = "calabaza-cae";
+        duracion = 8 + Math.random()*3;
+        el.style.fontSize = (24 + Math.random()*8) + "px";
+        break;
+      case "hoja-flota":
+        el.textContent = emojisHoja[Math.floor(Math.random()*emojisHoja.length)];
+        el.className = "hoja-flota-cae";
+        duracion = 10 + Math.random()*4;
+        el.style.setProperty("--sway2", (25 + Math.random()*45).toFixed(0));
+        break;
+      default:
+        el.textContent = emojisHoja[Math.floor(Math.random()*emojisHoja.length)];
+        el.className = "hoja-cae";
+        duracion = 7 + Math.random()*4;
+    }
+
+    if (tipo !== "calabaza") el.style.fontSize = tamano + "px";
+    el.style.left = (Math.random()*94) + "%";
+    el.style.setProperty("--sway", sway.toFixed(0));
+    el.style.animationDuration = duracion + "s";
+
+    lluvia.appendChild(el);
+    enVuelo++;
+
+    el.addEventListener("animationend", () => manejarAterrizaje(el, tipo));
+  }
+
+  function manejarAterrizaje(el, tipo){
+    el.remove();
+    enVuelo--;
+
+    if (tipo === "calabaza") {
+      calabazaActiva = false;
+      return;
+    }
+    if (tipo === "bellota") return;
+
+    // Solo las hojas (normales o flotantes) pueden acumularse
+    const seAcumula = Math.random() < 0.5 && pilaElementos.length < MAX_PILA;
+    if (seAcumula) agregarAPila();
+  }
+
+  function agregarAPila(){
+    const hoja = document.createElement("div");
+    hoja.className = "hoja-pila";
+    hoja.textContent = emojisHoja[Math.floor(Math.random()*emojisHoja.length)];
+    hoja.style.left = (Math.random()*130) + "px";
+    hoja.style.bottom = (Math.random()*70) + "px";
+    hoja.style.fontSize = (16 + Math.random()*10) + "px";
+    hoja.style.transform = "rotate(" + (Math.random()*360) + "deg)";
+    hoja.style.animation = "plop 0.4s ease-out";
+    pila.appendChild(hoja);
+    pilaElementos.push(hoja);
+  }
+
+  function dispersarPila(){
+    if (dispersando || pilaElementos.length === 0) return;
+    dispersando = true;
+
+    pilaElementos.forEach((hoja) => {
+      const anguloExtra = 120 + Math.random()*180;
+      hoja.style.transform += " translateY(120vh) rotate(" + anguloExtra + "deg)";
+      hoja.classList.add("dispersando");
+    });
+
+    setTimeout(() => {
+      pilaElementos.forEach(h => h.remove());
+      pilaElementos.length = 0;
+      dispersando = false;
+    }, 950);
+  }
+
+  // Moderado: una hoja/bellota nueva cada ~750ms
+  setInterval(crearElementoCayendo, 750);
+
+  window.addEventListener("scroll", dispersarPila, { passive:true });
+})();
+</script>
+<!-- ══ FIN ANUNCIO OTOÑO ══ -->
+
+</body>
+</html>
 
 <!-- AVISO COMERCIAL DESTELLANTE -->
 <style>
