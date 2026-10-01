@@ -573,230 +573,317 @@ footer {
 <body>
 
 <!-- ANUNCIO FLOTANTE -->
-
-
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Demo - Anuncio Otoño</title>
+<title>Demo - Halloween + Día de Muertos</title>
 </head>
 <body>
 
 <!-- ══════════════════════════════════════════════
-     ANUNCIO AMBIENTAL — OTOÑO 🍁
-     No bloquea nada, corre siempre de fondo.
-     Pega este bloque completo (div + style + script)
-     justo antes de </body>.
+     ANUNCIO COMBINADO — HALLOWEEN (solo 1ra vez)
+     + DÍA DE MUERTOS (ambiental, se queda fijo)
+     Pega TODO este bloque completo justo antes de </body>.
 ═══════════════════════════════════════════════ -->
-<div id="otonoFondo">
-  <div id="otonoLluvia"></div>
-  <div id="otonoPila"></div>
+
+<!-- ---------- HALLOWEEN (bloqueante, solo una vez) ---------- -->
+<div id="hwOverlay">
+  <div id="hwContenido">
+    <div id="hwTextoChico">presiona aquí si te atreves</div>
+    <button id="hwBoton" onclick="festejarHalloween()">
+      🎃 ¡TRUCO O TRATO! 🎃
+    </button>
+  </div>
+  <div id="hwLluvia"></div>
+</div>
+
+<!-- ---------- DÍA DE MUERTOS (ambiental, permanente) ---------- -->
+<div id="dmFondo">
+  <div id="dmGuirnalda"></div>
+  <div id="dmLluvia"></div>
 </div>
 
 <style>
-/* ===== Capa de fondo, nunca bloquea clics ===== */
-#otonoFondo{
+/* ===== HALLOWEEN ===== */
+#hwOverlay{
+  position:fixed;
+  inset:0;
+  z-index:99999;
+  background:rgba(10,5,20,0.85);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  transition:opacity 0.8s ease, visibility 0.8s ease;
+}
+#hwOverlay.oculto{
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+}
+#hwOverlay.festejando{
+  background:transparent;
+  pointer-events:none;
+}
+#hwContenido{
+  text-align:center;
+  z-index:2;
+  animation:aparecerHw 0.6s ease;
+}
+#hwTextoChico{
+  color:#f5f5f5;
+  font-size:14px;
+  letter-spacing:1px;
+  margin-bottom:14px;
+  opacity:0.85;
+}
+#hwBoton{
+  font-family:"Georgia", serif;
+  font-size:30px;
+  font-weight:bold;
+  color:#fff;
+  background:linear-gradient(135deg,#f97316,#4c1d95);
+  border:3px solid #f97316;
+  border-radius:50px;
+  padding:22px 40px;
+  cursor:pointer;
+  box-shadow:0 0 0 0 rgba(249,115,22,0.5);
+  animation:pulsoHw 1.6s infinite;
+}
+#hwBoton:hover{ transform:scale(1.04); }
+@keyframes pulsoHw{
+  0%   { box-shadow:0 0 0 0 rgba(249,115,22,0.45); }
+  70%  { box-shadow:0 0 0 22px rgba(249,115,22,0); }
+  100% { box-shadow:0 0 0 0 rgba(249,115,22,0); }
+}
+@keyframes aparecerHw{
+  from{ opacity:0; transform:scale(0.85); }
+  to  { opacity:1; transform:scale(1); }
+}
+#hwLluvia{ position:absolute; inset:0; pointer-events:none; }
+.hw-item{
+  position:absolute;
+  top:-40px;
+  font-size:26px;
+  will-change:transform;
+  animation-name:caerHw;
+  animation-timing-function:linear;
+  animation-fill-mode:forwards;
+}
+@keyframes caerHw{
+  from{ transform:translateY(0) rotate(0deg); }
+  to  { transform:translateY(110vh) rotate(360deg); }
+}
+.hw-murcielago{ animation-name:volarMurcielago; }
+@keyframes volarMurcielago{
+  0%   { transform:translate(0,0) rotate(0deg); }
+  30%  { transform:translate(20vw,10vh) rotate(-8deg); }
+  60%  { transform:translate(45vw,35vh) rotate(6deg); }
+  100% { transform:translate(70vw,90vh) rotate(-4deg); }
+}
+@media(max-width:480px){
+  #hwBoton{ font-size:20px; padding:16px 26px; }
+}
+
+/* ===== DÍA DE MUERTOS ===== */
+#dmFondo{
   position:fixed;
   inset:0;
   z-index:9998;
   pointer-events:none;
   overflow:hidden;
-  /* viñeta cálida sutil en las orillas */
   box-shadow:
-    inset 0 0 140px rgba(180,95,25,0.28),
-    inset 0 0 50px rgba(140,70,15,0.18);
+    inset 0 0 140px rgba(120,40,120,0.22),
+    inset 0 0 60px rgba(200,110,20,0.16);
 }
-
-#otonoLluvia, #otonoPila{
+#dmGuirnalda{
   position:absolute;
-  inset:0;
-  pointer-events:none;
+  top:0; left:0; right:0;
+  height:34px;
+  display:flex;
+  justify-content:space-evenly;
+  background:linear-gradient(to bottom, rgba(0,0,0,0.06), transparent);
 }
-
-/* ===== Hojas y bellotas cayendo ===== */
-.hoja-cae, .bellota-cae{
+.dm-bandera{
+  width:0; height:0;
+  border-left:14px solid transparent;
+  border-right:14px solid transparent;
+  border-top:20px solid #b83280;
+  opacity:0.85;
+}
+.dm-bandera:nth-child(4n+1){ border-top-color:#d97706; }
+.dm-bandera:nth-child(4n+2){ border-top-color:#7c3aed; }
+.dm-bandera:nth-child(4n+3){ border-top-color:#eab308; }
+.dm-bandera:nth-child(4n+4){ border-top-color:#db2777; }
+#dmLluvia{ position:absolute; inset:0; }
+.dm-petalo, .dm-mariposa, .dm-calavera{
   position:absolute;
-  top:-40px;
+  top:-30px;
   will-change:transform, opacity;
   animation-timing-function:linear;
   animation-fill-mode:forwards;
+}
+.dm-petalo{
+  width:12px; height:16px;
+  border-radius:60% 60% 50% 50%;
+  background:linear-gradient(160deg,#f59e0b,#d97706);
+  animation-name:caerPetalo;
   opacity:0.9;
 }
-.hoja-cae{ animation-name:caerHoja; }
-.hoja-flota-cae{ animation-name:flotarHoja; }
-.bellota-cae{ animation-name:caerBellota; }
-.calabaza-cae{ animation-name:caerHoja; }
-
-@keyframes caerHoja{
+@keyframes caerPetalo{
   0%   { transform:translate(0,0) rotate(0deg); }
   25%  { transform:translate(calc(var(--sway) * 1px), 24vh) rotate(90deg); }
   50%  { transform:translate(calc(var(--sway) * -1px), 50vh) rotate(180deg); }
   75%  { transform:translate(calc(var(--sway) * 1px), 76vh) rotate(270deg); }
-  100% { transform:translate(0, 98vh) rotate(360deg); }
+  100% { transform:translate(0, 98vh) rotate(360deg); opacity:0.3; }
 }
-/* Hoja que flota llevada por el viento un rato antes de finalmente caer */
-@keyframes flotarHoja{
+.dm-mariposa{ left:-8%; animation-name:volarMariposa; }
+@keyframes volarMariposa{
+  0%   { transform:translate(0,0) rotate(-6deg) scale(1); }
+  20%  { transform:translate(24vw, -18px) rotate(4deg) scale(0.94); }
+  40%  { transform:translate(48vw, 14px) rotate(-6deg) scale(1); }
+  60%  { transform:translate(72vw, -14px) rotate(5deg) scale(0.95); }
+  80%  { transform:translate(96vw, 10px) rotate(-4deg) scale(1); }
+  100% { transform:translate(120vw, 0) rotate(0deg) scale(1); }
+}
+.dm-calavera{ animation-name:flotarCalavera; opacity:0.85; }
+@keyframes flotarCalavera{
   0%   { transform:translate(0,0) rotate(0deg); }
-  15%  { transform:translate(calc(var(--sway) * 1px), 5vh) rotate(20deg); }
-  35%  { transform:translate(calc(var(--sway) * -1.2px), 12vh) rotate(-15deg); }
-  55%  { transform:translate(calc(var(--sway2) * 1px), 18vh) rotate(25deg); }
-  72%  { transform:translate(calc(var(--sway2) * -1px), 28vh) rotate(-10deg); }
-  100% { transform:translate(0, 98vh) rotate(340deg); }
-}
-@keyframes caerBellota{
-  0%   { transform:translate(0,0) rotate(0deg); }
-  50%  { transform:translate(calc(var(--sway) * 0.4px), 50vh) rotate(140deg); }
-  100% { transform:translate(0, 98vh) rotate(300deg); }
-}
-
-/* ===== Montoncito acumulado en la esquina inferior izquierda ===== */
-#otonoPila{
-  width:170px;
-  height:150px;
-  left:0;
-  bottom:0;
-  top:auto;
-  right:auto;
-}
-.hoja-pila{
-  position:absolute;
-  bottom:0;
-  transition:transform 0.9s ease-in, opacity 0.9s ease-in;
-}
-.hoja-pila.dispersando{
-  opacity:0;
-}
-@keyframes plop{
-  from{ transform:scale(0.4); opacity:0; }
-  to  { transform:scale(1); opacity:0.95; }
+  50%  { transform:translate(calc(var(--sway) * 0.6px), 48vh) rotate(15deg); }
+  100% { transform:translate(0, 98vh) rotate(-10deg); opacity:0.4; }
 }
 </style>
 
 <script>
 (function(){
-  const emojisHoja = ["🍁","🍂","🍃"];
-  const emojiBellota = "🌰";
-  const emojiCalabaza = "🎃";
-  const MAX_CONCURRENTES = 22;
-  const MAX_PILA = 18;
 
-  let enVuelo = 0;
-  let calabazaActiva = false;
-  const pila = document.getElementById("otonoPila");
-  const lluvia = document.getElementById("otonoLluvia");
-  const pilaElementos = [];
-  let dispersando = false;
+  /* ============ DÍA DE MUERTOS (se activa cuando corresponda) ============ */
+  let dmYaIniciado = false;
 
-  function crearElementoCayendo(){
-    if (enVuelo >= MAX_CONCURRENTES) return;
+  function iniciarDiaDeMuertos(){
+    if (dmYaIniciado) return;
+    dmYaIniciado = true;
 
-    let tipo;
-    if (!calabazaActiva && Math.random() < 0.006) {
-      tipo = "calabaza";
-      calabazaActiva = true;
-    } else if (Math.random() < 0.2) {
-      tipo = "bellota";
-    } else if (Math.random() < 0.12) {
-      tipo = "hoja-flota";
-    } else {
-      tipo = "hoja";
+    const guirnalda = document.getElementById("dmGuirnalda");
+    for (let i = 0; i < 16; i++) {
+      const b = document.createElement("div");
+      b.className = "dm-bandera";
+      guirnalda.appendChild(b);
     }
 
-    const el = document.createElement("div");
-    const tamano = 18 + Math.random()*14;
-    const sway = 30 + Math.random()*50;
+    const lluviaDM = document.getElementById("dmLluvia");
+    const MAX_CONCURRENTES_DM = 20;
+    let enVueloDM = 0;
+    let calaveraActiva = false;
 
-    let duracion;
-    switch(tipo){
-      case "bellota":
-        el.textContent = emojiBellota;
-        el.className = "bellota-cae";
-        duracion = 3 + Math.random()*1.2;
-        break;
-      case "calabaza":
-        el.textContent = emojiCalabaza;
-        el.className = "calabaza-cae";
-        duracion = 8 + Math.random()*3;
-        el.style.fontSize = (24 + Math.random()*8) + "px";
-        break;
-      case "hoja-flota":
-        el.textContent = emojisHoja[Math.floor(Math.random()*emojisHoja.length)];
-        el.className = "hoja-flota-cae";
-        duracion = 10 + Math.random()*4;
-        el.style.setProperty("--sway2", (25 + Math.random()*45).toFixed(0));
-        break;
-      default:
-        el.textContent = emojisHoja[Math.floor(Math.random()*emojisHoja.length)];
-        el.className = "hoja-cae";
+    function crearElementoDM(){
+      if (enVueloDM >= MAX_CONCURRENTES_DM) return;
+
+      let tipo;
+      if (!calaveraActiva && Math.random() < 0.006) {
+        tipo = "calavera";
+        calaveraActiva = true;
+      } else if (Math.random() < 0.18) {
+        tipo = "mariposa";
+      } else {
+        tipo = "petalo";
+      }
+
+      const el = document.createElement("div");
+      const sway = 30 + Math.random()*50;
+      let duracion;
+
+      if (tipo === "mariposa") {
+        el.textContent = "🦋";
+        el.className = "dm-mariposa";
+        el.style.top = (10 + Math.random()*65) + "%";
+        el.style.fontSize = (20 + Math.random()*10) + "px";
         duracion = 7 + Math.random()*4;
+      } else if (tipo === "calavera") {
+        el.textContent = "💀";
+        el.className = "dm-calavera";
+        el.style.left = (Math.random()*90) + "%";
+        el.style.fontSize = (22 + Math.random()*8) + "px";
+        el.style.setProperty("--sway", sway.toFixed(0));
+        duracion = 9 + Math.random()*3;
+      } else {
+        el.className = "dm-petalo";
+        el.style.left = (Math.random()*94) + "%";
+        el.style.setProperty("--sway", sway.toFixed(0));
+        duracion = 6 + Math.random()*4;
+      }
+
+      el.style.animationDuration = duracion + "s";
+      lluviaDM.appendChild(el);
+      enVueloDM++;
+
+      el.addEventListener("animationend", () => {
+        el.remove();
+        enVueloDM--;
+        if (tipo === "calavera") calaveraActiva = false;
+      });
     }
 
-    if (tipo !== "calabaza") el.style.fontSize = tamano + "px";
-    el.style.left = (Math.random()*94) + "%";
-    el.style.setProperty("--sway", sway.toFixed(0));
-    el.style.animationDuration = duracion + "s";
-
-    lluvia.appendChild(el);
-    enVuelo++;
-
-    el.addEventListener("animationend", () => manejarAterrizaje(el, tipo));
+    setInterval(crearElementoDM, 700);
   }
 
-  function manejarAterrizaje(el, tipo){
-    el.remove();
-    enVuelo--;
+  /* ============ HALLOWEEN (solo la primera vez) ============ */
+  if (localStorage.getItem("halloweenVisto")) {
+    // Ya lo vio antes: Halloween no sale, Día de Muertos arranca de inmediato
+    document.getElementById("hwOverlay").classList.add("oculto");
+    iniciarDiaDeMuertos();
+  }
+  // Si no lo ha visto, el overlay de Halloween se queda visible
+  // esperando el clic (festejarHalloween se encarga del resto).
 
-    if (tipo === "calabaza") {
-      calabazaActiva = false;
-      return;
+  window.festejarHalloween = function(){
+    const contenido = document.getElementById("hwContenido");
+    const lluvia = document.getElementById("hwLluvia");
+    const overlay = document.getElementById("hwOverlay");
+
+    contenido.style.display = "none";
+    overlay.classList.add("festejando");
+
+    const items = ["🦇","👻","🕷️","🎃","🍬","🕸️"];
+    const totalItems = 55;
+    let maxDuracionTotal = 0;
+
+    for (let i = 0; i < totalItems; i++) {
+      const el = document.createElement("div");
+      const emoji = items[Math.floor(Math.random()*items.length)];
+      const esMurcielago = emoji === "🦇" && Math.random() < 0.6;
+
+      el.className = esMurcielago ? "hw-item hw-murcielago" : "hw-item";
+      el.textContent = emoji;
+
+      const izquierda = Math.random() * 100;
+      const duracion = 2.5 + Math.random() * 2.5;
+      const retraso = Math.random() * 1.2;
+      maxDuracionTotal = Math.max(maxDuracionTotal, duracion + retraso);
+
+      el.style.left = izquierda + "%";
+      el.style.fontSize = (20 + Math.random()*16) + "px";
+      el.style.animationDuration = duracion + "s";
+      el.style.animationDelay = retraso + "s";
+
+      lluvia.appendChild(el);
     }
-    if (tipo === "bellota") return;
 
-    // Solo las hojas (normales o flotantes) pueden acumularse
-    const seAcumula = Math.random() < 0.5 && pilaElementos.length < MAX_PILA;
-    if (seAcumula) agregarAPila();
-  }
-
-  function agregarAPila(){
-    const hoja = document.createElement("div");
-    hoja.className = "hoja-pila";
-    hoja.textContent = emojisHoja[Math.floor(Math.random()*emojisHoja.length)];
-    hoja.style.left = (Math.random()*130) + "px";
-    hoja.style.bottom = (Math.random()*70) + "px";
-    hoja.style.fontSize = (16 + Math.random()*10) + "px";
-    hoja.style.transform = "rotate(" + (Math.random()*360) + "deg)";
-    hoja.style.animation = "plop 0.4s ease-out";
-    pila.appendChild(hoja);
-    pilaElementos.push(hoja);
-  }
-
-  function dispersarPila(){
-    if (dispersando || pilaElementos.length === 0) return;
-    dispersando = true;
-
-    pilaElementos.forEach((hoja) => {
-      const anguloExtra = 120 + Math.random()*180;
-      hoja.style.transform += " translateY(120vh) rotate(" + anguloExtra + "deg)";
-      hoja.classList.add("dispersando");
-    });
-
+    // Cuando termina de caer todo el festejo de Halloween:
+    // se cierra para siempre y arranca Día de Muertos, que se queda fijo.
     setTimeout(() => {
-      pilaElementos.forEach(h => h.remove());
-      pilaElementos.length = 0;
-      dispersando = false;
-    }, 950);
-  }
+      overlay.classList.add("oculto");
+      lluvia.innerHTML = "";
+      localStorage.setItem("halloweenVisto", "1");
+      iniciarDiaDeMuertos();
+    }, (maxDuracionTotal * 1000) + 300);
+  };
 
-  // Moderado: una hoja/bellota nueva cada ~750ms
-  setInterval(crearElementoCayendo, 750);
-
-  window.addEventListener("scroll", dispersarPila, { passive:true });
 })();
 </script>
-<!-- ══ FIN ANUNCIO OTOÑO ══ -->
+<!-- ══ FIN ANUNCIO COMBINADO ══ -->
 
 </body>
 </html>
