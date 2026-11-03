@@ -609,6 +609,8 @@ function construirCatalogo(libros){
   cargarEnSegundoPlano();
 }
 function crearProducto(L){
+  // Disponible si hay en la matriz (existencia) o en la sucursal (existencia_sucursal)
+  const hayStock = (Number(L.existencia) || 0) + (Number(L.existencia_sucursal) || 0) > 0;
   const d = document.createElement("div");
   d.className = "producto";
   d.dataset.titulo = String(L.titulo || "").toLowerCase();
@@ -636,8 +638,8 @@ function crearProducto(L){
 
       <div class="precio">
         $${L.precio} MXN · 
-        <span class="estado ${L.existencia > 0 ? 'ok' : 'no'}">
-          ${L.existencia > 0 ? "✔ Disponible" : "✖ Agotado"}
+        <span class="estado ${hayStock ? 'ok' : 'no'}">
+          ${hayStock ? "✔ Disponible" : "✖ Agotado"}
         </span>
       </div>
     </a>
