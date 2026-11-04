@@ -76,11 +76,11 @@ color:#0d47a1;
   #categoria,#buscador{background:#fff;}
 
   .catalogo{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;padding:12px;min-height:300px;}
-  .producto{background:white;border-radius:12px;padding:10px;position:relative;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,0.06);transition:all .3s ease;}
+  .producto{background:white;border-radius:12px;padding:10px;position:relative;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,0.06);transition:all .3s ease;display:flex;flex-direction:column;container-type:inline-size;container-name:prod;}
   .producto img{width:100%;max-height:220px;object-fit:contain;border-radius:8px;margin-bottom:8px;}
   .titulo{font-weight:700;margin:0 0 6px;}
   .autor{margin:0 0 8px;color:#333;}
-  .precio{color:#0d47a1;font-weight:700;}
+  .precio{color:#0d47a1;font-weight:700;margin-top:auto;}
 
   .estado{
   font-size:12px;
@@ -180,8 +180,9 @@ color:#0d47a1;
   background:linear-gradient(45deg,#0d47a1,#1565c0);
   color:white;
   border:none;
-  padding:14px 28px;
-  font-size:16px;
+  padding:13px 22px;
+  font-size:15px;
+  white-space:nowrap;
   font-weight:700;
   border-radius:40px;
   box-shadow:0 6px 18px rgba(0,0,0,.25);
@@ -264,6 +265,102 @@ color:#0d47a1;
   to{ transform:rotate(360deg); }
 }
 
+/* ===== BARRA DE BÚSQUEDA + CARRITO ===== */
+.fila-busqueda{display:flex;gap:8px;width:100%;max-width:520px;align-items:stretch}
+.fila-busqueda #buscador{flex:1 1 auto;min-width:0;width:auto;max-width:none}
+@media(min-width:700px){ .fila-busqueda{width:35%} }
+#carritoBtn{
+  position:relative;flex:0 0 46px;display:flex;align-items:center;justify-content:center;
+  border:1px solid rgba(255,255,255,.6);border-radius:8px;background:#1565c0;color:#fff;cursor:pointer;padding:0;
+}
+#carritoBtn:hover{background:#1976d2}
+#carritoBtn svg{width:24px;height:24px}
+#carritoBtn.bump{animation:carBump .45s ease}
+@keyframes carBump{0%{transform:scale(1)}35%{transform:scale(1.25) rotate(-8deg)}70%{transform:scale(.95)}100%{transform:scale(1)}}
+#carritoBadge{
+  position:absolute;top:-8px;right:-8px;min-width:20px;height:20px;padding:0 5px;border-radius:10px;
+  background:#FFC107;color:#222;font:700 12px/20px Arial,sans-serif;text-align:center;display:none;box-shadow:0 1px 4px rgba(0,0,0,.35)
+}
+
+/* ===== BOTÓN AGREGAR AL CARRITO (en cada ficha) ===== */
+.btn-carrito{
+  display:flex;align-items:center;justify-content:center;gap:6px;width:100%;margin-top:8px;padding:9px 8px;
+  border:none;border-radius:8px;background:#0d47a1;color:#fff;font-weight:700;font-size:13px;line-height:1.15;
+  text-align:center;cursor:pointer;font-family:inherit;transition:background .2s,transform .1s
+}
+.btn-carrito svg{width:17px;height:17px;flex:0 0 auto}
+.btn-carrito:hover:not(:disabled){background:#1565c0}
+.btn-carrito:active:not(:disabled){transform:scale(.97)}
+.btn-carrito:disabled{background:#aab2c0;cursor:not-allowed}
+.btn-carrito.agregado{background:#2e7d32 !important}
+.btn-carrito .lbl-corto{display:none}
+@container prod (max-width:180px){
+  .btn-carrito .lbl-largo{display:none}
+  .btn-carrito .lbl-corto{display:inline}
+}
+
+/* ===== PANEL DEL CARRITO ===== */
+body.sin-scroll{overflow:hidden}
+#carritoOverlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:10000;
+  opacity:0;visibility:hidden;transition:opacity .3s,visibility 0s .3s
+}
+#carritoOverlay.abierto{opacity:1;visibility:visible;transition:opacity .3s}
+#carritoPanel{
+  position:fixed;top:0;right:0;height:100vh;height:100dvh;width:min(92vw,400px);background:#fff;z-index:10001;
+  display:flex;flex-direction:column;box-shadow:-6px 0 24px rgba(0,0,0,.25);
+  transform:translateX(105%);visibility:hidden;transition:transform .32s ease,visibility 0s .32s
+}
+#carritoPanel.abierto{transform:none;visibility:visible;transition:transform .32s ease}
+.car-head{display:flex;align-items:center;gap:8px;padding:14px 14px;background:#0d47a1;color:#fff}
+.car-head h2{flex:1;margin:0;font-size:18px;font-family:Arial,sans-serif}
+.car-head button{background:transparent;border:none;color:#fff;font-size:20px;cursor:pointer;padding:4px 8px;border-radius:6px}
+.car-head button:hover{background:rgba(255,255,255,.18)}
+.car-lista{flex:1;overflow-y:auto;padding:10px 12px;background:#f7f9ff}
+.car-vacio{text-align:center;color:#666;padding:50px 20px;font-size:15px;line-height:1.5}
+.car-item{display:flex;gap:10px;background:#fff;border-radius:10px;padding:8px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.08);position:relative}
+.car-item img{width:52px;height:72px;object-fit:contain;background:#fff;border-radius:6px;flex:0 0 auto}
+.car-info{flex:1;min-width:0;padding-right:22px}
+.car-titulo{font-weight:700;font-size:14px;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.car-precio{font-size:13px;color:#555;margin-top:2px}
+.car-ctrl{display:flex;align-items:center;gap:8px;margin-top:6px;flex-wrap:wrap}
+.car-ctrl .qty{width:28px;height:28px;border-radius:50%;border:1px solid #0d47a1;background:#fff;color:#0d47a1;font-size:17px;line-height:1;cursor:pointer;padding:0}
+.car-ctrl .qty:disabled{border-color:#bbb;color:#bbb;cursor:not-allowed}
+.car-ctrl .cant{min-width:18px;text-align:center;font-weight:700}
+.car-sub{margin-left:auto;font-weight:700;color:#0d47a1;font-size:14px}
+.car-aviso{font-size:11px;color:#b26a00;margin-top:3px}
+.car-quitar{position:absolute;top:4px;right:4px;border:none;background:transparent;color:#999;font-size:16px;cursor:pointer;padding:4px 6px;border-radius:6px}
+.car-quitar:hover{color:#c62828;background:#fdecea}
+.car-pie{padding:12px 14px 14px;border-top:1px solid #dde3f0;background:#fff}
+.car-total{display:flex;justify-content:space-between;align-items:baseline;font-size:17px;font-weight:700;color:#0d47a1}
+.car-total small{font-weight:400;color:#777;font-size:12px}
+.car-hint{font-size:12.5px;color:#555;margin:6px 0 10px;line-height:1.35}
+.car-hint.ok{color:#2e7d32;font-weight:600}
+#carritoPedido{
+  display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;border:none;border-radius:10px;
+  background:#25D366;color:#fff;font-weight:700;font-size:15px;cursor:pointer;font-family:inherit
+}
+#carritoPedido:disabled{background:#a9d8bb;cursor:not-allowed}
+#carritoPedido:hover:not(:disabled){background:#1fbd5a}
+.car-vaciar{display:block;margin:10px auto 0;border:none;background:transparent;color:#888;text-decoration:underline;cursor:pointer;font-size:13px}
+.car-nota{font-size:11.5px;color:#888;text-align:center;margin-top:8px}
+
+/* imagen que vuela al carrito */
+.vuelo{position:fixed;z-index:10002;pointer-events:none;object-fit:contain;background:#fff;border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,.3);transform-origin:center}
+
+/* mensajitos */
+#toast{
+  position:fixed;left:50%;bottom:95px;transform:translateX(-50%) translateY(16px);background:#222;color:#fff;
+  padding:10px 18px;border-radius:22px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .3s,transform .3s;
+  z-index:10003;max-width:90%;text-align:center
+}
+#toast.ver{opacity:1;transform:translateX(-50%) translateY(0)}
+
+@media (prefers-reduced-motion:reduce){
+  #carritoPanel,#carritoOverlay{transition:none}
+  #carritoBtn.bump{animation:none}
+}
+
 /* ══ BOTÓN SÍLABA ══ */
 #silaba-tab {
   position: fixed;
@@ -341,7 +438,13 @@ color:#0d47a1;
   <select id="categoria">
     <option value="">📂 Todas las categorías</option>
   </select>
-  <input id="buscador" placeholder="🔍 Buscar por título o autor">
+  <div class="fila-busqueda">
+    <input id="buscador" placeholder="🔍 Buscar por título o autor">
+    <button id="carritoBtn" type="button" onclick="abrirCarrito()" aria-label="Abrir carrito">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2 3h3l2.6 12.2a1.6 1.6 0 0 0 1.6 1.3h8.6a1.6 1.6 0 0 0 1.6-1.2L21 7H6.2"/></svg>
+      <span id="carritoBadge"></span>
+    </button>
+  </div>
 </div>
 <div id="barraPromo">
   <span id="mensajePromo"></span>
@@ -387,12 +490,31 @@ color:#0d47a1;
   </div>
 </div>
 
+<!-- ===== CARRITO ===== -->
+<div id="carritoOverlay" onclick="cerrarCarrito()"></div>
+<aside id="carritoPanel" role="dialog" aria-modal="true" aria-labelledby="carritoTitulo" aria-hidden="true">
+  <div class="car-head">
+    <h2 id="carritoTitulo">Tu carrito</h2>
+    <button id="sonidoBtn" type="button" onclick="alternarSonido()" aria-label="Activar o silenciar el sonido" title="Sonido">🔊</button>
+    <button type="button" onclick="cerrarCarrito()" aria-label="Cerrar carrito" id="carritoCerrar">✕</button>
+  </div>
+  <div class="car-lista" id="carritoLista"></div>
+  <div class="car-pie">
+    <div class="car-total"><span>Total <small id="carritoPiezas"></small></span><span id="carritoTotal">$0</span></div>
+    <div class="car-hint" id="carritoHint"></div>
+    <button id="carritoPedido" type="button" onclick="enviarPedido()">Enviar pedido por WhatsApp</button>
+    <button class="car-vaciar" type="button" onclick="vaciarCarrito()">Vaciar carrito</button>
+    <div class="car-nota">El total no incluye envío. Confirmamos disponibilidad y costo por WhatsApp.</div>
+  </div>
+</aside>
+<div id="toast" role="status" aria-live="polite"></div>
+
 <div class="botones-flotantes">
-  <button id="favoritosBtn" onclick="irAFavoritos()">⭐</button>
+  <button id="favoritosBtn" onclick="irAFavoritos()" aria-label="Mi lista de deseos" title="Mi lista de deseos">⭐</button>
   <a id="whatsapp" href="https://wa.me/524751070540" target="_blank">💬</a>
   </div>
-<button id="valentinBtn" onclick="enviarSolicitud()">
-  📚 Quiero estos libros
+<button id="valentinBtn" onclick="agregarDeseosAlCarrito()">
+  🛒 Agregar todo al carrito
 </button>
 
 <script>
@@ -407,6 +529,10 @@ var todosLibros = [];
 var viendoFavs = false;
 var productosPendientes = [];
 var renderizando = false;
+var catPorCode = {};      // code → libro (datos del catálogo)
+var cart = {};            // code → cantidad en el carrito
+var MAX_LIBROS_CARRITO = 15;   // libros distintos por pedido (para que el mensaje de WhatsApp quepa)
+var UMBRAL_DOMICILIO = 200;    // domicilio gratis en compras superiores a este monto
 function normalizar(texto){
   return texto
     .toString()
@@ -476,7 +602,9 @@ function actualizarContadorCategorias(){
   let texto = "";
 
   if (viendoFavs) {
-    texto = "Favoritos - " + total + " libros";
+    texto = total === 0
+      ? "Tu lista de deseos está vacía. Toca la ☆ de un libro para guardarlo."
+      : "Lista de deseos - " + total + " libros";
   } 
   else if (categoria) {
     texto = categoria + " - " + total + " libros";
@@ -538,6 +666,11 @@ fetch("https://script.google.com/macros/s/AKfycby0I4zJSTM1bpWNB0QVpktidbyuXDzZFa
       l.autor && String(l.autor).trim() !== ""
     );
 
+    // 🛒 mapa código → libro, y carrito guardado (se limpia de lo que ya no existe o se agotó)
+    catPorCode = {};
+    libros.forEach(l => { catPorCode[String(l.code)] = l; });
+    cargarCarrito();
+
     // ⏳ permitir que se vea la animación
     setTimeout(() => {
       construirCategorias(libros);
@@ -557,6 +690,8 @@ if (viendoFavs) {
 mostrarPagina(estado.pagina);
   // ── Avisar al botón de Sílaba que ya cargaron los libros ──
   document.dispatchEvent(new CustomEvent('catalogoCargado'));
+  pintarInsignia();
+  actualizarBotones();
 
     }, 500);
   })
@@ -610,41 +745,41 @@ function construirCatalogo(libros){
 }
 function crearProducto(L){
   // Disponible si hay en la matriz (existencia) o en la sucursal (existencia_sucursal)
-  const hayStock = (Number(L.existencia) || 0) + (Number(L.existencia_sucursal) || 0) > 0;
+  const hayStock = stockDe(L) > 0;
   const d = document.createElement("div");
   d.className = "producto";
   d.dataset.titulo = String(L.titulo || "").toLowerCase();
   d.dataset.autor  = String(L.autor  || "").toLowerCase();
   d.dataset.categoria = L.categoria || "";
+  d.dataset.code = String(L.code);
 
   d.innerHTML = `
-    <div class="estrella" onclick="toggleFav(this)">☆</div>
+    <div class="estrella" onclick="toggleFav(this)" title="Guardar en mi lista de deseos">☆</div>
     <div class="stars-container"></div>
 
-    <a href="https://wa.me/${numero}?text=${encodeURIComponent(
-      "Hola! Me interesa " + L.titulo + " $" + L.precio
-    )}" target="_blank" style="color:inherit;text-decoration:none">
+    <img
+      src="${esc(L.imagen)}"
+      alt=""
+      loading="lazy"
+      decoding="async"
+      width="200"
+      height="200"
+    >
 
-      <img 
-        src="${L.imagen}"
-        loading="lazy"
-        decoding="async"
-        width="200"
-        height="200"
-      >
+    <div class="titulo">${esc(L.titulo)}</div>
+    <div class="autor">${esc(L.autor)}</div>
 
-      <div class="titulo">${L.titulo}</div>
-      <div class="autor">${L.autor}</div>
+    <div class="precio">
+      ${dinero(precioDe(L))} MXN ·
+      <span class="estado ${hayStock ? 'ok' : 'no'}">
+        ${hayStock ? "✔ Disponible" : "✖ Agotado"}
+      </span>
+    </div>
 
-      <div class="precio">
-        $${L.precio} MXN · 
-        <span class="estado ${hayStock ? 'ok' : 'no'}">
-          ${hayStock ? "✔ Disponible" : "✖ Agotado"}
-        </span>
-      </div>
-    </a>
+    <button type="button" class="btn-carrito" onclick="agregarAlCarrito(this)"></button>
   `;
 
+  pintarBoton(d.querySelector(".btn-carrito"), L);
   return d;
 }
 
@@ -714,7 +849,7 @@ function mostrarPagina(p, conservarScroll = false){
 
   librosFiltrados
     .slice((paginaActual - 1) * librosPorPagina, paginaActual * librosPorPagina)
-    .forEach(x => x.style.display = "block");
+    .forEach(x => x.style.display = "flex");
 
   document.getElementById("contadorPagina").textContent =
     "Página " + paginaActual + " / " + totalPaginas;
@@ -909,33 +1044,314 @@ window.addEventListener("popstate", (event) => {
 
 
 
-function enviarSolicitud(){
 
-  if (!favs || favs.length === 0) {
-    alert("Agrega libros a favoritos primero 📚");
+
+/* =====================================================
+   CARRITO DE COMPRAS
+   - Se guarda en este navegador (localStorage), por código de libro.
+   - La cantidad nunca pasa de las piezas disponibles (matriz + sucursal).
+   - El pedido se envía por WhatsApp para confirmar disponibilidad y envío.
+   ===================================================== */
+const CARRITO_KEY = "carritoTertulia";
+const SVG_CARRITO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2 3h3l2.6 12.2a1.6 1.6 0 0 0 1.6 1.3h8.6a1.6 1.6 0 0 0 1.6-1.2L21 7H6.2"/></svg>';
+
+function esc(t){
+  return String(t == null ? "" : t).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function stockDe(L){
+  return Math.max(0, (Number(L.existencia) || 0)) + Math.max(0, (Number(L.existencia_sucursal) || 0));
+}
+function precioDe(L){ return Number(L.precio) || 0; }
+function dinero(n){
+  n = Number(n) || 0;
+  return "$" + n.toLocaleString("es-MX", { minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 });
+}
+function reducirMovimiento(){
+  return window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+/* ---------- guardado ---------- */
+function cargarCarrito(){
+  let quitados = 0;
+  cart = {};
+  try {
+    const raw = JSON.parse(localStorage.getItem(CARRITO_KEY) || "{}");
+    Object.keys(raw).forEach(code => {
+      const info = catPorCode[code];
+      const q = parseInt(raw[code], 10);
+      if (!(q > 0)) return;
+      const st = info ? stockDe(info) : 0;
+      if (st > 0) cart[code] = Math.min(q, st); else quitados++;
+    });
+  } catch (e) { cart = {}; }
+  guardarCarrito();
+  if (quitados) setTimeout(() => mostrarToast("Quitamos de tu carrito " + quitados + (quitados === 1 ? " libro que ya no está disponible" : " libros que ya no están disponibles")), 800);
+}
+function guardarCarrito(){
+  try { localStorage.setItem(CARRITO_KEY, JSON.stringify(cart)); } catch (e) {}
+}
+function codigosCarrito(){ return Object.keys(cart); }
+function totalPiezas(){ return codigosCarrito().reduce((s, c) => s + cart[c], 0); }
+function totalPesos(){ return codigosCarrito().reduce((s, c) => s + precioDe(catPorCode[c]) * cart[c], 0); }
+
+/* ---------- botón de cada ficha ---------- */
+function pintarBoton(btn, L){
+  const st = stockDe(L);
+  const q = cart[String(L.code)] || 0;
+  const poner = (icono, largo, corto, deshabilitado) => {
+    btn.innerHTML = (icono ? SVG_CARRITO : "") + '<span class="lbl-largo">' + largo + '</span><span class="lbl-corto">' + corto + '</span>';
+    btn.disabled = deshabilitado;
+  };
+  if (st <= 0)       poner(false, "No disponible", "No disponible", true);
+  else if (q >= st)  poner(false, "✔ Ya en tu carrito", "✔ En carrito", true);
+  else               poner(true, "Agregar al carrito" + (q ? " (" + q + ")" : ""), "Agregar" + (q ? " (" + q + ")" : ""), false);
+}
+function actualizarBotones(){
+  todosLibros.forEach(p => {
+    const L = catPorCode[p.dataset.code];
+    const btn = p.querySelector(".btn-carrito");
+    if (L && btn) pintarBoton(btn, L);
+  });
+}
+
+/* ---------- agregar ---------- */
+function agregarAlCarrito(btn){
+  const prod = btn.closest(".producto");
+  const code = prod.dataset.code;
+  const L = catPorCode[code];
+  if (!L) return;
+  const st = stockDe(L), q = cart[code] || 0;
+  if (st <= 0) return;
+  if (q >= st){ mostrarToast("Ya tienes todas las piezas disponibles de este libro"); return; }
+  if (!q && codigosCarrito().length >= MAX_LIBROS_CARRITO){
+    mostrarToast("Máximo " + MAX_LIBROS_CARRITO + " libros distintos por pedido. Envía este y haz otro después 😊");
     return;
   }
-
-  const librosSeleccionados = todosLibros
-    .filter(p => favs.includes(p.querySelector(".titulo").innerText))
-    .map(p => {
-      const titulo = p.querySelector(".titulo").innerText;
-      const precio = p.querySelector(".precio").innerText.split("·")[0].trim();
-      return "• " + titulo + " – " + precio;
-    });
-
-  const mensaje =
-    "Hola 👋\n\n" +
-    "Me interesan los siguientes libros:\n\n" +
-    librosSeleccionados.join("\n") +
-    "\n\n¿Me confirmas disponibilidad? 📚✨\n" +
-    "Gracias.";
-
-  window.open(
-    "https://wa.me/" + numero + "?text=" + encodeURIComponent(mensaje),
-    "_blank"
-  );
+  prepararAudio();
+  cart[code] = q + 1;
+  guardarCarrito();
+  actualizarBotones();
+  btn.classList.add("agregado");
+  setTimeout(() => btn.classList.remove("agregado"), 900);
+  volarAlCarrito(prod.querySelector("img"), () => {
+    pintarInsignia(true);
+    sonidoPop();
+    if (carritoAbierto()) renderCarrito();
+  });
 }
+
+function cambiarCantidad(code, delta){
+  const L = catPorCode[code];
+  if (!L || !cart[code]) return;
+  const nueva = cart[code] + delta;
+  if (nueva <= 0){ quitarDelCarrito(code); return; }
+  if (nueva > stockDe(L)){ mostrarToast("No hay más piezas disponibles de este libro"); return; }
+  cart[code] = nueva;
+  guardarCarrito(); actualizarBotones(); pintarInsignia(); renderCarrito();
+}
+function quitarDelCarrito(code){
+  delete cart[code];
+  guardarCarrito(); actualizarBotones(); pintarInsignia(); renderCarrito();
+}
+function vaciarCarrito(){
+  if (!codigosCarrito().length) return;
+  if (!confirm("¿Vaciar todo el carrito?")) return;
+  cart = {};
+  guardarCarrito(); actualizarBotones(); pintarInsignia(); renderCarrito();
+}
+
+/* ---------- insignia del carrito (barra superior) ---------- */
+function pintarInsignia(saltar){
+  const n = totalPiezas();
+  const b = document.getElementById("carritoBadge");
+  b.textContent = n > 99 ? "99+" : n;
+  b.style.display = n > 0 ? "block" : "none";
+  document.getElementById("carritoBtn").setAttribute("aria-label", "Abrir carrito (" + n + (n === 1 ? " libro)" : " libros)"));
+  if (saltar && !reducirMovimiento()){
+    const btn = document.getElementById("carritoBtn");
+    btn.classList.remove("bump"); void btn.offsetWidth; btn.classList.add("bump");
+  }
+}
+
+/* ---------- animación: la portada se encoge y vuela al carrito ---------- */
+function volarAlCarrito(imgEl, alLlegar){
+  const destino = document.getElementById("carritoBtn");
+  const a = imgEl ? imgEl.getBoundingClientRect() : null;
+  if (reducirMovimiento() || !a || !a.width || !a.height || !destino || !destino.animate){ alLlegar(); return; }
+  const b = destino.getBoundingClientRect();
+  const vuelo = document.createElement("img");
+  vuelo.className = "vuelo";
+  vuelo.src = imgEl.currentSrc || imgEl.src;
+  vuelo.style.cssText = "left:" + a.left + "px;top:" + a.top + "px;width:" + a.width + "px;height:" + a.height + "px;";
+  document.body.appendChild(vuelo);
+  const dx = (b.left + b.width / 2) - (a.left + a.width / 2);
+  const dy = (b.top + b.height / 2) - (a.top + a.height / 2);
+  let terminado = false;
+  const terminar = () => { if (terminado) return; terminado = true; vuelo.remove(); alLlegar(); };
+  const anim = vuelo.animate([
+    { transform: "translate(0,0) scale(1)", opacity: 1 },
+    { transform: "translate(" + (dx * 0.45) + "px," + (dy * 0.45 - 70) + "px) scale(.45)", opacity: .95, offset: .45 },
+    { transform: "translate(" + dx + "px," + dy + "px) scale(.08)", opacity: .5 }
+  ], { duration: 800, easing: "cubic-bezier(.45,.05,.55,.95)" });
+  anim.onfinish = terminar;
+  setTimeout(terminar, 1200);
+}
+
+/* ---------- sonido (generado por el navegador, sin archivos) ---------- */
+let audioCtx = null;
+function sonidoActivo(){ try { return localStorage.getItem("carritoSonido") !== "0"; } catch (e) { return true; } }
+function pintarSonido(){ document.getElementById("sonidoBtn").textContent = sonidoActivo() ? "🔊" : "🔇"; }
+function alternarSonido(){
+  try { localStorage.setItem("carritoSonido", sonidoActivo() ? "0" : "1"); } catch (e) {}
+  pintarSonido();
+  if (sonidoActivo()){ prepararAudio(); sonidoPop(); }
+}
+function prepararAudio(){
+  if (!sonidoActivo()) return;
+  try {
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === "suspended") audioCtx.resume();
+  } catch (e) {}
+}
+function sonidoPop(){
+  if (!sonidoActivo() || !audioCtx) return;
+  try {
+    const t = audioCtx.currentTime;
+    const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+    o.type = "sine";
+    o.frequency.setValueAtTime(620, t);
+    o.frequency.exponentialRampToValueAtTime(980, t + 0.08);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.12, t + 0.015);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.17);
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start(t); o.stop(t + 0.19);
+  } catch (e) {}
+}
+
+/* ---------- mensajitos ---------- */
+let toastTimer = null;
+function mostrarToast(texto){
+  const t = document.getElementById("toast");
+  t.textContent = texto;
+  t.classList.add("ver");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove("ver"), 3200);
+}
+
+/* ---------- panel del carrito ---------- */
+function carritoAbierto(){ return document.getElementById("carritoPanel").classList.contains("abierto"); }
+function abrirCarrito(){
+  prepararAudio();
+  renderCarrito();
+  pintarSonido();
+  document.getElementById("carritoOverlay").classList.add("abierto");
+  const p = document.getElementById("carritoPanel");
+  p.classList.add("abierto");
+  p.setAttribute("aria-hidden", "false");
+  document.body.classList.add("sin-scroll");
+  setTimeout(() => document.getElementById("carritoCerrar").focus(), 50);
+}
+function cerrarCarrito(){
+  document.getElementById("carritoOverlay").classList.remove("abierto");
+  const p = document.getElementById("carritoPanel");
+  p.classList.remove("abierto");
+  p.setAttribute("aria-hidden", "true");
+  document.body.classList.remove("sin-scroll");
+  const b = document.getElementById("carritoBtn");
+  if (b) b.focus();
+}
+document.addEventListener("keydown", e => { if (e.key === "Escape" && carritoAbierto()) cerrarCarrito(); });
+
+function renderCarrito(){
+  const lista = document.getElementById("carritoLista");
+  const codes = codigosCarrito();
+  lista.innerHTML = "";
+
+  if (!codes.length){
+    lista.innerHTML = '<div class="car-vacio">🛒<br><br>Tu carrito está vacío.<br>Toca «Agregar al carrito» en los libros que te gusten.</div>';
+  } else {
+    codes.forEach(code => {
+      const L = catPorCode[code];
+      const q = cart[code], st = stockDe(L), p = precioDe(L);
+      const item = document.createElement("div");
+      item.className = "car-item";
+      item.innerHTML =
+        '<img src="' + esc(L.imagen) + '" alt="">' +
+        '<div class="car-info">' +
+          '<div class="car-titulo">' + esc(L.titulo) + '</div>' +
+          '<div class="car-precio">' + dinero(p) + ' c/u</div>' +
+          '<div class="car-ctrl">' +
+            '<button class="qty" type="button" data-act="menos" data-code="' + esc(code) + '" aria-label="Quitar una pieza">−</button>' +
+            '<span class="cant">' + q + '</span>' +
+            '<button class="qty" type="button" data-act="mas" data-code="' + esc(code) + '" aria-label="Agregar una pieza"' + (q >= st ? " disabled" : "") + '>+</button>' +
+            '<span class="car-sub">' + dinero(p * q) + '</span>' +
+          '</div>' +
+          (q >= st ? '<div class="car-aviso">Es lo que hay disponible' + (st <= 3 ? " (últimas piezas)" : "") + '</div>' : "") +
+        '</div>' +
+        '<button class="car-quitar" type="button" data-act="quitar" data-code="' + esc(code) + '" aria-label="Quitar este libro">✕</button>';
+      lista.appendChild(item);
+    });
+  }
+
+  const total = totalPesos(), piezas = totalPiezas();
+  document.getElementById("carritoTotal").textContent = dinero(total);
+  document.getElementById("carritoPiezas").textContent = piezas ? "(" + piezas + (piezas === 1 ? " pieza)" : " piezas)") : "";
+  const hint = document.getElementById("carritoHint");
+  if (!piezas){ hint.textContent = ""; hint.className = "car-hint"; }
+  else if (total > UMBRAL_DOMICILIO){ hint.textContent = "🎉 Ya tienes servicio a domicilio gratis"; hint.className = "car-hint ok"; }
+  else { hint.textContent = "Te faltan " + dinero(UMBRAL_DOMICILIO - total + 0.01).replace(/\.01$/, "") + " para servicio a domicilio gratis"; hint.className = "car-hint"; }
+  document.getElementById("carritoPedido").disabled = !piezas;
+}
+
+document.getElementById("carritoLista").addEventListener("click", e => {
+  const b = e.target.closest("button[data-act]");
+  if (!b) return;
+  const code = b.dataset.code;
+  if (b.dataset.act === "mas") cambiarCantidad(code, 1);
+  else if (b.dataset.act === "menos") cambiarCantidad(code, -1);
+  else if (b.dataset.act === "quitar") quitarDelCarrito(code);
+});
+
+/* ---------- pedido por WhatsApp ---------- */
+function enviarPedido(){
+  const codes = codigosCarrito();
+  if (!codes.length) return;
+  let total = 0;
+  const lineas = codes.map(code => {
+    const L = catPorCode[code], q = cart[code], p = precioDe(L);
+    total += p * q;
+    return "• " + L.titulo + (q > 1 ? " (x" + q + ") – " + dinero(p) + " c/u = " + dinero(p * q) : " – " + dinero(p));
+  });
+  const msg =
+    "Hola 👋\n\nMe gustaría hacer este pedido:\n\n" +
+    lineas.join("\n") +
+    "\n\nTotal: " + dinero(total) + " MXN (sin envío)\n\n" +
+    "¿Me confirmas disponibilidad y costo de envío? 📚✨\nGracias.";
+  window.open("https://wa.me/" + numero + "?text=" + encodeURIComponent(msg), "_blank");
+}
+
+/* ---------- lista de deseos → carrito ---------- */
+function agregarDeseosAlCarrito(){
+  const prods = todosLibros.filter(p => favs.includes(p.querySelector(".titulo").innerText));
+  let agregados = 0, agotados = 0, yaEstaban = 0, sinLugar = 0;
+  prods.forEach(p => {
+    const code = p.dataset.code, L = catPorCode[code];
+    if (!L || stockDe(L) <= 0){ agotados++; return; }
+    if (cart[code]){ yaEstaban++; return; }
+    if (codigosCarrito().length >= MAX_LIBROS_CARRITO){ sinLugar++; return; }
+    cart[code] = 1; agregados++;
+  });
+  guardarCarrito(); actualizarBotones(); pintarInsignia(agregados > 0);
+  const partes = [];
+  if (agregados) partes.push(agregados + (agregados === 1 ? " libro agregado" : " libros agregados"));
+  if (yaEstaban) partes.push(yaEstaban + " ya estaban en el carrito");
+  if (agotados) partes.push(agotados + (agotados === 1 ? " agotado" : " agotados"));
+  if (sinLugar) partes.push(sinLugar + " no cupieron (máximo " + MAX_LIBROS_CARRITO + " por pedido)");
+  if (agregados){ sonidoPop(); abrirCarrito(); }
+  if (partes.length) mostrarToast(partes.join(" · "));
+}
+
 /* ===== MENSAJES ROTATIVOS PROMO ===== */
 
 const mensajesPromo = [
